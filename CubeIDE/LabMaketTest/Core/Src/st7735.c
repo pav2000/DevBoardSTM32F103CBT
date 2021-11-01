@@ -747,7 +747,7 @@ void ST7735_FillTriangle( int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_
 ** Function name:           drawLine
 ** Description:             draw a line between 2 arbitrary points
 ***************************************************************************************/
-
+//Алгоритм Брезенхэма (http://algolist.ru/graphics/painting/line.php)
 // Slower but more compact line drawing function
 void ST7735_DrawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color)
 {

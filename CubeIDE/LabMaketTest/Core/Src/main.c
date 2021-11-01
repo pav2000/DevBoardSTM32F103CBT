@@ -155,7 +155,7 @@ uint8_t old_menu = menu_main;  // Старая позиция меню
   /* USER CODE BEGIN 2 */
   beep(200);
 
-  ST7735_Init();
+  ST7735_Init();          // Не забываем в кубе настроить DMA
   ST7735_Backlight_On(); // Включить подсветку дисплея
   ST7735_SetRotation(3);
   ST7735_FillScreen(ST7735_WHITE);
