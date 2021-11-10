@@ -29,7 +29,7 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-#define VERSION  "1.29"   // Версия тестовой программы
+#define VERSION  "1.30"   // Версия тестовой программы
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -52,6 +52,8 @@ RTC_HandleTypeDef hrtc;
 SPI_HandleTypeDef hspi1;
 DMA_HandleTypeDef hdma_spi1_tx;
 
+TIM_HandleTypeDef htim1;
+
 /* USER CODE BEGIN PV */
 RTC_TimeTypeDef RtcTime;
 RTC_DateTypeDef RtcDate;
@@ -60,14 +62,14 @@ uint8_t r = 0;
 char buf[64];
 int EncVal=0;
 const char *menu_main_text[NUM_MENU_MAIN]={"1.Test TFT st7735",
-	                        	 "2.Test analog sensor",
-								 "3.Test key & leds",
-                                 "4.Test RTC stm32",
-							     "5.Test ds18b20",
-                                 "6.Test I2C bus >>",
-                                 "7.Test motor&ACS70331",
-                                 "8.Test SD card",
-								 "9.Test nrf24l01"	};
+										 "2.Test analog sensor",
+										 "3.Test key & leds",
+										 "4.Test RTC stm32",
+										 "5.Test ds18b20",
+										 "6.Test I2C bus >>",
+										 "7.Test motor&ACS70331",
+										 "8.Test SD card",
+										 "9.Test nrf24l01"	};
 
 uint8_t menu_main = 0;
 uint8_t menu_i2c = 0;
@@ -82,6 +84,7 @@ static void MX_SPI1_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_RTC_Init(void);
 static void MX_I2C1_Init(void);
+static void MX_TIM1_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -152,6 +155,7 @@ uint8_t old_menu = menu_main;  // Старая позиция меню
   MX_RTC_Init();
   MX_I2C1_Init();
   MX_FATFS_Init();
+  MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
   beep(200);
 
@@ -172,7 +176,7 @@ uint8_t old_menu = menu_main;  // Старая позиция меню
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
  // HAL_GPIO_WritePin(GPIOB, LED2_Pin, GPIO_PIN_SET);    // Установить светодиод 2 в 1
-  HAL_GPIO_WritePin(GPIOB, LED1_Pin, GPIO_PIN_RESET);    // Установить светодиод 1 в 0
+  HAL_GPIO_WritePin(LED1_CE_NRF_GPIO_Port, LED1_CE_NRF_Pin, GPIO_PIN_RESET);    // Установить светодиод 1 в 0
  // HAL_GPIO_WritePin(GPIOA, TFT_LED_Pin, GPIO_PIN_SET); // Включить подсветку дисплея
 
   HAL_ADCEx_Calibration_Start(&hadc1);   // Калибровка первого ADC
@@ -183,7 +187,7 @@ uint8_t old_menu = menu_main;  // Старая позиция меню
   char testDataToSend[]="Hello world!\n";
   while (1)
   {
-	  HAL_GPIO_TogglePin(GPIOB, LED1_Pin); // Инвертирование состояния выхода.
+	  HAL_GPIO_TogglePin(LED1_CE_NRF_GPIO_Port, LED1_CE_NRF_Pin); // Инвертирование состояния выхода.
 	  HAL_Delay(50);                       // Пауза 50 миллисекунд.
 
 	//  CDC_Transmit_FS(testDataToSend, strlen(testDataToSend));
@@ -484,6 +488,56 @@ static void MX_SPI1_Init(void)
 }
 
 /**
+  * @brief TIM1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM1_Init(void)
+{
+
+  /* USER CODE BEGIN TIM1_Init 0 */
+
+  /* USER CODE END TIM1_Init 0 */
+
+  TIM_Encoder_InitTypeDef sConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM1_Init 1 */
+
+  /* USER CODE END TIM1_Init 1 */
+  htim1.Instance = TIM1;
+  htim1.Init.Prescaler = 0;
+  htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim1.Init.Period = 9;
+  htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim1.Init.RepetitionCounter = 0;
+  htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  sConfig.EncoderMode = TIM_ENCODERMODE_TI1;
+  sConfig.IC1Polarity = TIM_ICPOLARITY_RISING;
+  sConfig.IC1Selection = TIM_ICSELECTION_DIRECTTI;
+  sConfig.IC1Prescaler = TIM_ICPSC_DIV1;
+  sConfig.IC1Filter = 0;
+  sConfig.IC2Polarity = TIM_ICPOLARITY_RISING;
+  sConfig.IC2Selection = TIM_ICSELECTION_DIRECTTI;
+  sConfig.IC2Prescaler = TIM_ICPSC_DIV1;
+  sConfig.IC2Filter = 0;
+  if (HAL_TIM_Encoder_Init(&htim1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM1_Init 2 */
+
+  /* USER CODE END TIM1_Init 2 */
+
+}
+
+/**
   * Enable DMA controller clock
   */
 static void MX_DMA_Init(void)
@@ -518,14 +572,15 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(LED3_GPIO_Port, LED3_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, TFT_CS_Pin|SPI_CS2_nrf_Pin|SD_CS_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOA, TFT_LED_Pin|TFT_RST_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, LED2_Pin|LED1_Pin|STEP1_Pin|STEP2_Pin
-                          |STEP3_Pin|STEP4_Pin|BUZZER_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, SPI_CS2_nrf_Pin|SD_CS_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, TFT_LED_Pin|TFT_DC_Pin|TFT_RST_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, LED2_Pin|LED1_CE_NRF_Pin|STEP1_Pin|TFT_CS_Pin
+                          |TFT_DC_Pin|STEP4_Pin|BUZZER_Pin|STEP2_Pin
+                          |STEP3_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : LED3_Pin */
   GPIO_InitStruct.Pin = LED3_Pin;
@@ -534,11 +589,11 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(LED3_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : TFT_CS_Pin SD_CS_Pin */
-  GPIO_InitStruct.Pin = TFT_CS_Pin|SD_CS_Pin;
+  /*Configure GPIO pins : TFT_LED_Pin TFT_RST_Pin */
+  GPIO_InitStruct.Pin = TFT_LED_Pin|TFT_RST_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pin : SPI_CS2_nrf_Pin */
@@ -548,10 +603,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
   HAL_GPIO_Init(SPI_CS2_nrf_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : LED2_Pin LED1_Pin STEP1_Pin STEP2_Pin
-                           STEP3_Pin STEP4_Pin BUZZER_Pin */
-  GPIO_InitStruct.Pin = LED2_Pin|LED1_Pin|STEP1_Pin|STEP2_Pin
-                          |STEP3_Pin|STEP4_Pin|BUZZER_Pin;
+  /*Configure GPIO pins : LED2_Pin LED1_CE_NRF_Pin STEP1_Pin TFT_CS_Pin
+                           TFT_DC_Pin STEP4_Pin BUZZER_Pin STEP2_Pin
+                           STEP3_Pin */
+  GPIO_InitStruct.Pin = LED2_Pin|LED1_CE_NRF_Pin|STEP1_Pin|TFT_CS_Pin
+                          |TFT_DC_Pin|STEP4_Pin|BUZZER_Pin|STEP2_Pin
+                          |STEP3_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -563,35 +620,18 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(ONEWIRE_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : TFT_LED_Pin TFT_RST_Pin */
-  GPIO_InitStruct.Pin = TFT_LED_Pin|TFT_RST_Pin;
+  /*Configure GPIO pin : SD_CS_Pin */
+  GPIO_InitStruct.Pin = SD_CS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : TFT_DC_Pin */
-  GPIO_InitStruct.Pin = TFT_DC_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-  HAL_GPIO_Init(TFT_DC_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(SD_CS_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : INT_MAX30102_Pin ENC_BTN_Pin ENC_A_Pin */
-  GPIO_InitStruct.Pin = INT_MAX30102_Pin|ENC_BTN_Pin|ENC_A_Pin;
+  /*Configure GPIO pins : INT_MAX30102_Pin ENC_BTN_Pin */
+  GPIO_InitStruct.Pin = INT_MAX30102_Pin|ENC_BTN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : ENC_B_Pin */
-  GPIO_InitStruct.Pin = ENC_B_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(ENC_B_GPIO_Port, &GPIO_InitStruct);
-
-  /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 2, 0);
-  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
 }
 

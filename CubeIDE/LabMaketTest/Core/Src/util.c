@@ -47,7 +47,7 @@ void menu_i2c_screen(void){
  myMenu=mI2C;    // текущее меню - i2c
  while (1)
  {
-	  HAL_GPIO_TogglePin(GPIOB, LED1_Pin); // Инвертирование состояния выхода.
+	  HAL_GPIO_TogglePin(LED1_CE_NRF_GPIO_Port, LED1_CE_NRF_Pin); // Инвертирование состояния выхода.
 	  HAL_Delay(50);                       // Пауза 50 миллисекунд.
 
     if(old_menu!=menu_i2c) // Надо перерисовать пункт меню

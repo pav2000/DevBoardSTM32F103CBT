@@ -186,7 +186,7 @@ uint8_t i,n=20, led=0;
 	 while (1)
 	  {
 		 if (HAL_GPIO_ReadPin(GPIOB, ENC_BTN_Pin) == 1){
-			 HAL_GPIO_WritePin(GPIOB,LED1_Pin,GPIO_PIN_SET);HAL_GPIO_WritePin(GPIOB,LED2_Pin,GPIO_PIN_SET);HAL_GPIO_WritePin(GPIOC,LED3_Pin,GPIO_PIN_SET);// Погасить все светодиоды
+			 HAL_GPIO_WritePin(LED1_CE_NRF_GPIO_Port, LED1_CE_NRF_Pin,GPIO_PIN_SET);HAL_GPIO_WritePin(GPIOB,LED2_Pin,GPIO_PIN_SET);HAL_GPIO_WritePin(GPIOC,LED3_Pin,GPIO_PIN_SET);// Погасить все светодиоды
 			 break;  // выход по кнопке энкодера
 		 }
 		 // Чтение ADC
@@ -210,13 +210,13 @@ uint8_t i,n=20, led=0;
 		 if(n>10){ // Пора светодиоды зажигать
 		 n=0;
 		 switch (led){
-		 case 0: {HAL_GPIO_WritePin(GPIOB,LED1_Pin,GPIO_PIN_RESET);HAL_GPIO_WritePin(GPIOB,LED2_Pin,GPIO_PIN_SET);HAL_GPIO_WritePin(GPIOC,LED3_Pin,GPIO_PIN_SET);
+		 case 0: {HAL_GPIO_WritePin(LED1_CE_NRF_GPIO_Port, LED1_CE_NRF_Pin,GPIO_PIN_RESET);HAL_GPIO_WritePin(GPIOB,LED2_Pin,GPIO_PIN_SET);HAL_GPIO_WritePin(GPIOC,LED3_Pin,GPIO_PIN_SET);
 		         ST7735_FillRectangle(80,7*STR_H-1,20,10,ST7735_RED);ST7735_FillRectangle(80,8*STR_H-1,20,10,ST7735_BLACK);ST7735_FillRectangle(80,9*STR_H-1,20,10,ST7735_BLACK);
 		         led=1;break;}
-		 case 1: {HAL_GPIO_WritePin(GPIOB,LED1_Pin,GPIO_PIN_SET);HAL_GPIO_WritePin(GPIOB,LED2_Pin,GPIO_PIN_RESET);HAL_GPIO_WritePin(GPIOC,LED3_Pin,GPIO_PIN_SET);
+		 case 1: {HAL_GPIO_WritePin(LED1_CE_NRF_GPIO_Port, LED1_CE_NRF_Pin,GPIO_PIN_SET);HAL_GPIO_WritePin(GPIOB,LED2_Pin,GPIO_PIN_RESET);HAL_GPIO_WritePin(GPIOC,LED3_Pin,GPIO_PIN_SET);
                  ST7735_FillRectangle(80,7*STR_H-1,20,10,ST7735_BLACK);ST7735_FillRectangle(80,8*STR_H-1,20,10,ST7735_RED);ST7735_FillRectangle(80,9*STR_H-1,20,10,ST7735_BLACK);
          		 led=2;break;}
-		 case 2: {HAL_GPIO_WritePin(GPIOB,LED1_Pin,GPIO_PIN_SET);HAL_GPIO_WritePin(GPIOB,LED2_Pin,GPIO_PIN_SET);HAL_GPIO_WritePin(GPIOC,LED3_Pin,GPIO_PIN_RESET);
+		 case 2: {HAL_GPIO_WritePin(LED1_CE_NRF_GPIO_Port, LED1_CE_NRF_Pin,GPIO_PIN_SET);HAL_GPIO_WritePin(GPIOB,LED2_Pin,GPIO_PIN_SET);HAL_GPIO_WritePin(GPIOC,LED3_Pin,GPIO_PIN_RESET);
                  ST7735_FillRectangle(80,7*STR_H-1,20,10,ST7735_BLACK);ST7735_FillRectangle(80,8*STR_H-1,20,10,ST7735_BLACK);ST7735_FillRectangle(80,9*STR_H-1,20,10,ST7735_RED);
                  led=0;break;}
 
@@ -470,7 +470,7 @@ void test_max30102(){
 	  {//INT_MAX30102
     	//  if (HAL_GPIO_ReadPin(GPIOB, INT_MAX30102_Pin) == GPIO_PIN_RESET)
     	        {
-    	            HAL_GPIO_TogglePin(GPIOB, LED1_Pin); // Инвертирование состояния выхода.
+    	            HAL_GPIO_TogglePin(LED1_CE_NRF_GPIO_Port, LED1_CE_NRF_Pin); // Инвертирование состояния выхода.
     	            max30102_cal();
     	       //     uint8_t spo2 = max30102_getSpO2();
     	       //     uint8_t heartReat = max30102_getHeartRate();
