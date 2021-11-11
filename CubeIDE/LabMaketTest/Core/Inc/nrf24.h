@@ -8,13 +8,13 @@
 // Активация SPI
 //#define CS_GPIO_PORT   TFT_DC_GPIO_Port // hw 1.3
 //#define CS_PIN         TFT_DC_Pin       // hw 1.3
-#define CS_GPIO_PORT     LED1_CE_NRF_GPIO_Port
-#define CS_PIN           LED1_CE_NRF_Pin
+#define CS_GPIO_PORT     SPI_CS2_nrf_GPIO_Port// LED1_CE_NRF_GPIO_Port
+#define CS_PIN           SPI_CS2_nrf_Pin//LED1_CE_NRF_Pin
 #define CS_ON HAL_GPIO_WritePin(CS_GPIO_PORT, CS_PIN, GPIO_PIN_RESET)
 #define CS_OFF HAL_GPIO_WritePin(CS_GPIO_PORT, CS_PIN, GPIO_PIN_SET)
 // Включение микросхемы
-#define CE_GPIO_PORT     SPI_CS2_nrf_GPIO_Port
-#define CE_PIN           SPI_CS2_nrf_Pin
+#define CE_GPIO_PORT      LED1_CE_NRF_GPIO_Port//SPI_CS2_nrf_GPIO_Port
+#define CE_PIN           LED1_CE_NRF_Pin//SPI_CS2_nrf_Pin
 #define CE_RESET HAL_GPIO_WritePin(CE_GPIO_PORT, CE_PIN, GPIO_PIN_RESET)
 #define CE_SET HAL_GPIO_WritePin(CE_GPIO_PORT, CE_PIN, GPIO_PIN_SET)
 //#define IRQ_GPIO_PORT GPIOA

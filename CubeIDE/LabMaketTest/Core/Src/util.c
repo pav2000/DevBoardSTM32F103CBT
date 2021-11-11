@@ -62,7 +62,7 @@ void screen_i2c(uint8_t menu){
 void menu_i2c_screen(void){
  uint8_t old_menu = 0;           // Старая позиция меню
  myMenu=mI2C;                    // текущее меню - i2c
- TIM1->ARR = (NUM_MENU_I2C-1)*2; // Энкодер считает по новым пунктам i2c
+ TIM1->ARR = (NUM_MENU_I2C-1)*2+1; // Энкодер считает по новым пунктам i2c
  TIM1->CNT = menu_i2c = 0;       // нулевой пункт меню
  screen_i2c(menu_i2c);
   while (1)
@@ -91,7 +91,7 @@ void menu_i2c_screen(void){
    		case 1: test_VL53L0x();screen_i2c(menu_i2c); break;
    		case 2: test_max30102();screen_i2c(menu_i2c); break;
    		case 3: test_hmc5883l();screen_i2c(menu_i2c); break;
-     	case 4: myMenu=mMain;  TIM1->ARR = (NUM_MENU_MAIN-1)*2;return; break; // Выход
+     	case 4: myMenu=mMain;  TIM1->ARR = (NUM_MENU_MAIN-1)*2+1;return; break; // Выход
   		default: break;
 
     	}//switch (menu_i2c)

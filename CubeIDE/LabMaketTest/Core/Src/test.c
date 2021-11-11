@@ -225,10 +225,10 @@ uint8_t i,n=20, led=0;
 		 ST7735_FillRectangle(110, 3*STR_H, 49, STR_H, ST7735_BLACK);
 		 ST7735_DrawString(110, 3*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 		 if (adc2<200) strcpy(buf,"none");
-		 else if ((adc2>=500)&&(adc2<700)) strcpy(buf,"Esc");
-		 else if ((adc2>900)&&(adc2<1100)) strcpy(buf," +");
-		 else if ((adc2>1200)&&(adc2<1400)) strcpy(buf,"Ok");
-		 else if ((adc2>1900)&&(adc2<2100)) strcpy(buf," -");
+		 else if ((adc2>=1300)&&(adc2<1400)) strcpy(buf,"Esc");
+		 else if ((adc2>2000)&&(adc2<2100)) strcpy(buf," +");
+		 else if ((adc2>2400)&&(adc2<2500)) strcpy(buf,"Ok");
+		 else if ((adc2>3000)&&(adc2<3200)) strcpy(buf," -");
 		 else strcpy(buf,"error");
 		 ST7735_FillRectangle(110, 4*STR_H, 49, STR_H, ST7735_BLACK);
 		 ST7735_DrawString(110, 4*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
@@ -306,7 +306,7 @@ uint16_t adc2=0;
 		     for(uint8_t i=0;i<10;i++)
 			    adc2 = adc2 + ADC_Result(&hadc1, 2);
 		     adc2=adc2/10;
-             if((adc2>1200)&&(adc2<1400)){ // Кнопка установки RTC нажата
+             if((adc2>2400)&&(adc2<2500)){ // Кнопка установки RTC нажата
 
              setDateTime();
 
