@@ -1,7 +1,7 @@
 /*
  * st7735.h
  *
- *  Created on: 16 бер. 2019 р.
+ *  Created on: 16 пїЅпїЅпїЅ. 2019 пїЅ.
  *      Author: Andriy Honcharenko
  *        Blog: https://stm32withoutfear.blogspot.com
  */
@@ -120,8 +120,12 @@ extern SPI_HandleTypeDef ST7735_SPI_PORT;
 #define ST7735_YELLOW  0xFFE0
 #define ST7735_WHITE   0xFFFF
 
-void ST7735_Backlight_On(void);
-void ST7735_Backlight_Off(void);
+#ifdef USE_PWM_BACKLIGHT
+	void ST7735_Backlight(uint8_t bl);
+#else
+	void ST7735_Backlight_On(void);
+	void ST7735_Backlight_Off(void);
+#endif
 void ST7735_Init(void);
 void ST7735_DrawPixel(uint16_t x, uint16_t y, uint16_t color);
 void ST7735_DrawString(uint16_t x, uint16_t y, const char* str, FontDef font, uint16_t color, uint16_t bgcolor);

@@ -9,9 +9,11 @@
 #include "st7735.h"
 #include "stdlib.h"
 
+#ifndef USE_PWM_BACKLIGHT
+	#define TFT_BL_H()	ST7735_BL_GPIO_Port -> BSRR = ST7735_BL_Pin
+	#define TFT_BL_L()	ST7735_BL_GPIO_Port -> BRR 	= ST7735_BL_Pin
+#endif
 
-#define TFT_BL_H()	ST7735_BL_GPIO_Port -> BSRR = ST7735_BL_Pin
-#define TFT_BL_L()	ST7735_BL_GPIO_Port -> BRR 	= ST7735_BL_Pin
 #define TFT_CS_H()	ST7735_CS_GPIO_Port -> BSRR = ST7735_CS_Pin
 #define TFT_CS_L()	ST7735_CS_GPIO_Port -> BRR 	= ST7735_CS_Pin
 #define TFT_DC_D()	ST7735_DC_GPIO_Port -> BSRR = ST7735_DC_Pin // данные Высокий
@@ -371,17 +373,12 @@ void ST7735_InvertColors(bool invert)
     ST7735_WriteCommand(invert ? ST7735_INVON : ST7735_INVOFF);
     TFT_CS_H();
 }
-
-void ST7735_Backlight_On(void)
-{
-	TFT_BL_H();
-}
-
-void ST7735_Backlight_Off(void)
-{
-	TFT_BL_L();
-}
-
+#ifdef USE_PWM_BACKLIGHT
+	void ST7735_Backlight(uint8_t bl) {ST7735_BL_TIM->ST7735_BL_CH= bl ; }
+#else
+	void ST7735_Backlight_On(void)  { TFT_BL_H(); }
+	void ST7735_Backlight_Off(void) { TFT_BL_L(); }
+#endif
 /***************************************************************************************
 ** Function name:           drawCircle
 ** Description:             Draw a circle outline

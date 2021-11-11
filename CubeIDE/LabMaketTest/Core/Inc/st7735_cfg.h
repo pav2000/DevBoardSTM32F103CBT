@@ -13,6 +13,8 @@
 
 #define ST7735_SPI_PORT hspi1	//hspi1, hspi2, hspi3...
 #define USE_SPI_DMA		    	//if used DMA for SPI bus
+#define USE_PWM_BACKLIGHT   	//if used PWM backlight
+
 
 #define ST7735_1_8_DEFAULT_ORIENTATION	// AliExpress/eBay 1.8" display, default orientation
 //#define ST7735S_1_8_DEFAULT_ORIENTATION 	// WaveShare ST7735S-based 1.8" display, default orientation
@@ -41,11 +43,15 @@
 #define ST7735_CS_GPIO_Port 	TFT_CS_GPIO_Port
 #endif
 //Port and pin connected signal 'BL' (back light) ST7735 display
-#ifndef ST7735_BL_Pin
-#define ST7735_BL_Pin			TFT_LED_Pin
+#ifdef USE_PWM_BACKLIGHT
+	#define ST7735_BL_TIM			 TIM2
+	#define ST7735_BL_CH			 CCR2
+#else
+	#ifndef ST7735_BL_Pin
+	#define ST7735_BL_Pin			TFT_LED_Pin
+	#endif
+	#ifndef ST7735_BL_GPIO_Port
+	#define ST7735_BL_GPIO_Port 	TFT_LED_GPIO_Port
+	#endif
 #endif
-#ifndef ST7735_BL_GPIO_Port
-#define ST7735_BL_GPIO_Port 	TFT_LED_GPIO_Port
-#endif
-
 #endif /* ST7735_CFG_H_ */
