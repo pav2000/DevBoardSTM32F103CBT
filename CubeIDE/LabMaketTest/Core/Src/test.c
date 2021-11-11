@@ -1,11 +1,32 @@
 #include <stdlib.h>
+#include <math.h>
+#include <stdio.h>
 #include "main.h"
+
 //#include "testimg.h"
 #include "VL53L0x.h"
 #include "hmc5883l.h"
 #include "max30102/max30102.h"
 #include "fatfs.h"
 #include "nrf24.h"
+
+void test_TFT(void);
+void test_ADC(void);
+void test_keyADC_LEDS(void);
+void test_RTC(void);
+void test_ds18b20(void);
+void scan_i2c(void);
+void test_VL53L0x(void);
+void test_max30102(void);
+void test_hmc5883l(void);
+void test_SD(void);
+void test_nrf24(void);
+void test_Stepper(void);
+
+extern void setDateTime(void);
+extern char * my_ftoa(double f, char * buf, int precision);
+extern void beep_enc(void);
+extern void beep(uint16_t t);
 
 extern I2C_HandleTypeDef hi2c1;
 extern uint32_t ADC_Result(ADC_HandleTypeDef *hadc, uint32_t ch);
@@ -399,7 +420,7 @@ void scan_i2c(){
 
 struct VL53L0X myTOFsensor = {.io_2v8 = true, .address = 0b0101001, .io_timeout = 500, .did_timeout = false};
 // Адрес 0x29
-void test_VL53L0x(){
+void test_VL53L0x(void){
 
 	 ST7735_FillScreen(ST7735_BLACK);
 	 ST7735_FillRectangle(0, 0, 160-1, 12, ST7735_BLUE);
@@ -449,7 +470,7 @@ void test_VL53L0x(){
 }
 // тест датчика пульса  max30102
 // Адрес 0x57
-void test_max30102(){
+void test_max30102(void){
 
 	  /* I2C1_EV_IRQn interrupt configuration */
 	 ST7735_FillScreen(ST7735_BLACK);
@@ -497,7 +518,7 @@ void test_max30102(){
 #define cb 5
 #define PI 3.1416
 // Адрес 0x1E
-void test_hmc5883l(){
+void test_hmc5883l(void){
 	float headingDegrees_old=360;
 	// Для калибровки
 	int32_t minX = 0;
@@ -628,14 +649,11 @@ void test_hmc5883l(){
 //	FR_INVALID_PARAMETER	/* (19) Given parameter is invalid */
 //} FRESULT;
 
-void test_SD(){
+void test_SD(void){
 
-	 uint8_t n=1,i,ret;
 	 FATFS fs;  // file system
 	 FIL fil; // File
-	 FILINFO fno;
 	 FRESULT fresult;  // result
-	 UINT br, bw;  // File read/write count
 	 FATFS *pfs;
 	 DWORD fre_clust;
 	 uint32_t total, free_space;
@@ -695,6 +713,7 @@ void test_nrf24(void){
 	 ST7735_DrawString(0, 1, "Test nrf24l01 (SPI1)", Font_7x10, ST7735_YELLOW, ST7735_BLUE);
 
      ST7735_DrawString(0, 118, "Exit - press encoder", Font_7x10, ST7735_YELLOW, ST7735_BLACK);
+     HAL_GPIO_WritePin(LED1_CE_NRF_GPIO_Port, LED1_CE_NRF_Pin, GPIO_PIN_SET);    // Установить LED1_CE_NRF в 1
 
      NRF24_ini();
 
@@ -740,7 +759,7 @@ void test_nrf24(void){
 }
 
 
-void test_Stepper(){
+void test_Stepper(void){
      uint8_t i;
 	 ST7735_FillScreen(ST7735_BLACK);
 	 ST7735_FillRectangle(0, 0, 160-1, 12, ST7735_BLUE);
@@ -756,7 +775,7 @@ void test_Stepper(){
     		    adc0 = adc0 + ADC_Result(&hadc1, 8); // читаем значение переменного резистора
     	     adc0=adc0/5;
     	 int32_t speed=adc0*100/4096;
-    	 sprintf(buf,"Speed step ms: %d   ",speed);
+    	 sprintf(buf,"Speed step ms: %d   ",(int)speed);
     	 ST7735_DrawString(0, 2*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
     	 HAL_GPIO_WritePin(STEP1_GPIO_Port, STEP1_Pin, GPIO_PIN_SET);
@@ -777,7 +796,7 @@ void test_Stepper(){
     	 HAL_GPIO_WritePin(STEP4_GPIO_Port, STEP4_Pin, GPIO_PIN_RESET);
     	 HAL_Delay(speed);
 
-    	 sprintf(buf,"Input mV: %d  ",volt);
+    	 sprintf(buf,"Input mV: %d  ",(int)volt);
        	 ST7735_DrawString(0, 3*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
     	 HAL_GPIO_WritePin(STEP1_GPIO_Port, STEP1_Pin, GPIO_PIN_RESET);
@@ -787,7 +806,7 @@ void test_Stepper(){
     	 HAL_Delay(speed);
 
     	 uint32_t cur=(3360/2-volt)*1000/400;
-    	 sprintf(buf,"Current mA: %d  ",cur);
+    	 sprintf(buf,"Current mA: %d  ",(int)cur);
     	 ST7735_DrawString(0, 4*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
     	 HAL_GPIO_WritePin(STEP1_GPIO_Port, STEP1_Pin, GPIO_PIN_RESET);

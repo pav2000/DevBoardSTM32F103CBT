@@ -1,4 +1,21 @@
 #include "main.h"
+#include <stdio.h>
+
+extern void scan_i2c(void);
+extern void test_VL53L0x(void);
+extern void test_max30102(void);
+extern void test_hmc5883l(void);
+
+void start_screen(void);
+void screen_i2c(uint8_t menu);
+void menu_i2c_screen(void);
+void beep_enc(void);
+void beep(uint16_t t);
+void setDateTime(void);
+uint32_t ADC_Result(ADC_HandleTypeDef *hadc, uint32_t ch);
+char * my_ftoa(double f, char * buf, int precision);
+
+extern TIM_HandleTypeDef htim1;
 extern char *menu_main_text[];
 extern uint8_t menu_main;
 extern uint8_t menu_i2c;
@@ -16,9 +33,10 @@ void start_screen(void){
  uint8_t i;
  ST7735_FillScreen(ST7735_BLACK);
  ST7735_FillRectangle(0, 0, 160-1, 12, ST7735_BLUE);
- ST7735_DrawString(0, 1, "LabMaket ver. 1.3", Font_7x10, ST7735_YELLOW, ST7735_BLUE);
- itoa(menu_main+1,buf,16);   // Вывести текущий пункт меню
- ST7735_DrawString(150, 1, buf, Font_7x10, ST7735_RED, ST7735_BLUE);
+ ST7735_DrawString(0, 1, "Hardware 1.4 soft", Font_7x10, ST7735_YELLOW, ST7735_BLUE);
+ ST7735_DrawString(122, 1, VERSION, Font_7x10, ST7735_YELLOW, ST7735_BLUE);
+// itoa(menu_main+1,buf,16);   // Вывести текущий пункт меню
+// ST7735_DrawString(150, 1, buf, Font_7x10, ST7735_RED, ST7735_BLUE);
  for(i=1;i<=NUM_MENU_MAIN;i++) ST7735_DrawString(0, 2+i*STR_H,menu_main_text[i-1], Font_7x10, ST7735_WHITE, ST7735_BLACK);  // нарисовать все пункты
  // выделить пункт меню
  ST7735_FillRectangle(0, 2+(menu_main+1)*STR_H, 160-1,STR_H, ST7735_WHITE);  // подсветить выбранный пункт
@@ -33,6 +51,7 @@ void screen_i2c(uint8_t menu){
  ST7735_DrawString(0, 1, "I2C menu", Font_7x10, ST7735_YELLOW, ST7735_BLUE);
  itoa(menu+1,buf,16);   // Вывести текущий пункт меню
  ST7735_DrawString(150, 1, buf, Font_7x10, ST7735_RED, ST7735_BLUE);
+
  for(i=1;i<=NUM_MENU_I2C;i++) ST7735_DrawString(0, 2+i*STR_H,menu_i2c_text[i-1], Font_7x10, ST7735_WHITE, ST7735_BLACK);  // нарисовать все пункты
  // выделить пункт меню
  ST7735_FillRectangle(0, 2+(menu+1)*STR_H, 160-1,STR_H, ST7735_WHITE);  // подсветить выбранный пункт
@@ -41,19 +60,19 @@ void screen_i2c(uint8_t menu){
 
 // Меню тестирования i2c
 void menu_i2c_screen(void){
- uint8_t i;
- uint8_t old_menu = 0;  // Старая позиция меню
+ uint8_t old_menu = 0;           // Старая позиция меню
+ myMenu=mI2C;                    // текущее меню - i2c
+ TIM1->ARR = (NUM_MENU_I2C-1)*2; // Энкодер считает по новым пунктам i2c
+ TIM1->CNT = menu_i2c = 0;       // нулевой пункт меню
  screen_i2c(menu_i2c);
- myMenu=mI2C;    // текущее меню - i2c
- while (1)
+  while (1)
  {
 	  HAL_GPIO_TogglePin(LED1_CE_NRF_GPIO_Port, LED1_CE_NRF_Pin); // Инвертирование состояния выхода.
 	  HAL_Delay(50);                       // Пауза 50 миллисекунд.
-
+	  menu_i2c= __HAL_TIM_GET_COUNTER(&htim1)/2;  // Прочитать значение энкодера
     if(old_menu!=menu_i2c) // Надо перерисовать пункт меню
     {
 	  itoa(menu_i2c+1,buf,16);
-	//  HAL_NVIC_DisableIRQ(EXTI9_5_IRQn) ;
   	  ST7735_DrawString(150, 1, buf, Font_7x10, ST7735_RED, ST7735_BLUE); // текущий атом меню
    	// Старое меню восстанавливаем
   	  ST7735_FillRectangle(0, 2+(old_menu+1)*STR_H, 160-1,STR_H, ST7735_BLACK);
@@ -62,8 +81,7 @@ void menu_i2c_screen(void){
   	  ST7735_FillRectangle(0, 2+(menu_i2c+1)*STR_H, 160-1,STR_H, ST7735_WHITE);
       ST7735_DrawString(0, 2+(menu_i2c+1)*STR_H,menu_i2c_text[menu_i2c], Font_7x10, ST7735_BLUE, ST7735_WHITE);
       old_menu=menu_i2c;
-  //   HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
-     beep_enc();
+      beep_enc();
     }
     // Нажата кнопка
     if (HAL_GPIO_ReadPin(GPIOB, ENC_BTN_Pin) == 1) {
@@ -73,7 +91,7 @@ void menu_i2c_screen(void){
    		case 1: test_VL53L0x();screen_i2c(menu_i2c); break;
    		case 2: test_max30102();screen_i2c(menu_i2c); break;
    		case 3: test_hmc5883l();screen_i2c(menu_i2c); break;
-     	case 4: myMenu=mMain; return; break; // Выход
+     	case 4: myMenu=mMain;  TIM1->ARR = (NUM_MENU_MAIN-1)*2;return; break; // Выход
   		default: break;
 
     	}//switch (menu_i2c)
@@ -89,12 +107,14 @@ void beep_enc(void)
 	HAL_Delay(10);
 	HAL_GPIO_TogglePin(GPIOB, BUZZER_Pin);
 }
-beep(uint16_t t)
+
+void beep(uint16_t t)
 {
 	HAL_GPIO_TogglePin(GPIOB, BUZZER_Pin); // Звук переключения
 	HAL_Delay(t);
 	HAL_GPIO_TogglePin(GPIOB, BUZZER_Pin);
 }
+
 // Чтение одного канала ацп
 uint32_t ADC_Result(ADC_HandleTypeDef *hadc, uint32_t ch){
        ADC_ChannelConfTypeDef sConfig;
@@ -107,7 +127,7 @@ uint32_t ADC_Result(ADC_HandleTypeDef *hadc, uint32_t ch){
        HAL_ADC_Start(hadc);
        HAL_ADC_PollForConversion(hadc, 100);
        adcResult = HAL_ADC_GetValue(hadc);
-       HAL_ADC_Stop(&hadc);
+       HAL_ADC_Stop((ADC_HandleTypeDef*)&hadc);
        return adcResult;
 }
 
@@ -220,15 +240,15 @@ char * my_ftoa(double f, char * buf, int precision)
 extern RTC_HandleTypeDef hrtc;
 extern char *_time_;
 extern char *_date_;
-void setDateTime() {
+void setDateTime(void){
    RTC_TimeTypeDef sTime;
    RTC_DateTypeDef sDate;
    char s_month[5];
    int year;
    const char month_names[] = "JanFebMarAprMayJunJulAugSepOctNovDec";
-   sscanf(_date_, "%s %d %d", s_month, &sDate.Date, &year);
+   sscanf(_date_, "%s %d %d", (uint8_t*)s_month, (int*)&sDate.Date,(int*)&year);
   // sscanf(__TIME__, "%2d %*c %2d %*c %2d", &sTime.Hours, &sTime.Minutes, &sTime.Seconds);
-   sscanf(_time_, "%2d:%2d:%2d", &sTime.Hours, &sTime.Minutes, &sTime.Seconds);
+   sscanf(_time_, "%2d:%2d:%2d",(int*)&sTime.Hours,(int*) &sTime.Minutes,(int*) &sTime.Seconds);
    // Find where is s_month in month_names. Deduce month value.
    sDate.Month = (strstr(month_names, s_month) - month_names) / 3+1;
    sDate.Year = year-2000;
