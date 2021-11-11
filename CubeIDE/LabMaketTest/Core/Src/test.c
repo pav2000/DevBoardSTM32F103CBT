@@ -119,6 +119,12 @@ void test_TFT(void)
  ST7735_FillTriangle(0, 0, ST7735_GetWidth() / 2, ST7735_GetHeight(), ST7735_GetWidth(), 0, ST7735_RED);
  HAL_Delay(1000);
 
+ // Проверка регулирования яркости дисплея
+ ST7735_FillScreen(ST7735_WHITE);
+ ST7735_DrawString(8, 50, "BACKLIGHT", Font_16x26, ST7735_BLACK, ST7735_WHITE);
+ for (int i=0;i<100;i++){ST7735_Backlight(i);HAL_Delay(20); }
+ for (int i=0;i<100;i++){ST7735_Backlight(100-i);HAL_Delay(50); }
+ ST7735_Backlight(100);
 // ST7735_FillScreen(ST7735_BLACK);
 // ST7735_DrawImage(16, 0, 128, 128, (uint16_t*) test_img_128x128);
 // ST7735_DrawImage(0, 0, 160, 128, (const unsigned char*) gImage_icon03);

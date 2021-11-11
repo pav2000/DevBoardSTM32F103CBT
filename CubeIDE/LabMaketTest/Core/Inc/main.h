@@ -45,7 +45,7 @@ extern "C" {
 
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
-#define VERSION  "1.31"     // Версия тестовой программы
+#define VERSION  "1.33"     // Версия тестовой программы
 #define STR_H           10  // Высота строки
 #define NUM_MENU_MAIN   9   // Число пунктов основного меню
 #define NUM_MENU_I2C    5   // Число пунктов i2c меню
