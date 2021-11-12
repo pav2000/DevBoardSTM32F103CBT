@@ -374,7 +374,7 @@ void ST7735_InvertColors(bool invert)
     TFT_CS_H();
 }
 #ifdef USE_PWM_BACKLIGHT
-	void ST7735_Backlight(uint8_t bl) {ST7735_BL_TIM->ST7735_BL_CH= bl ; }
+	void ST7735_Backlight(uint8_t bl) {if ((bl>=0)&&(bl<=100))ST7735_BL_TIM->ST7735_BL_CH= bl;}
 #else
 	void ST7735_Backlight_On(void)  { TFT_BL_H(); }
 	void ST7735_Backlight_Off(void) { TFT_BL_L(); }
