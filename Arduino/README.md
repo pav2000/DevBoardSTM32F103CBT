@@ -4,13 +4,16 @@
 с помощью Arduino IDE. STM32 дает больше возможностей в плане производительности
  по сравнению с Arduino Nano.<br>
 Данная плата должна быть прошита загрузчиком от maple mini и при выборе платы в менеджере плат надо выбирать maple mini.<br>
+Загрузчик надо шить generic-none_bootloader.bin (с maple_mini_boot20.bin почему то не появлялся ком порт) но DFU появлялось<br>
+bootloaderSTM32.zip - содержит два варианта загрузчиков.
 <br>
 Интеграция stm32f103 в среду arduino описана вот здесь:<br>
 https://habr.com/ru/post/395577/<br>
 https://istarik.ru/blog/arduino/102.html<br>
 http://www.count-zero.ru/2017/stm32duino/<br>
-http://digitrode.ru/computing-devices/mcu_cpu/2237-kak-zaprogrammirovat-stm32-s-pomoschyu-arduino-ide.html
-http://arduino.ru/forum/obshchii/arduino-ide-addon-ot-stm32
+http://digitrode.ru/computing-devices/mcu_cpu/2237-kak-zaprogrammirovat-stm32-s-pomoschyu-arduino-ide.html <br>
+http://arduino.ru/forum/obshchii/arduino-ide-addon-ot-stm32<br>
+<br>
 Видео по настройке arduino ide для stm32<br>
 https://www.youtube.com/watch?v=5mThFmpC1U4<br>
 https://www.youtube.com/watch?v=878k4KqF7Xs<br>
