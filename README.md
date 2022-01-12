@@ -53,13 +53,13 @@ DataSheet - документация на отдельные микросхем�
 - micro usb разъем для VCP или MSD;<br>
 - напряжение питания +5 В;<br>
 - питание ядра контроллера от батарейки 3 В;<br>
-- габаритные размеры: 100х105 мм;<br>
+- габаритные размеры: 100х100 мм;<br>
 
 Внешний вид платы ver 1.5: <br>
-<img src="https://github.com/pav2000/DevBoardSTM32F103CBT/blob/main/Board/view2_v150.png" width="480" /> <br>
-<img src="https://github.com/pav2000/DevBoardSTM32F103CBT/blob/main/Board/view3_v150.png" width="480" /> <br>
-<img src="https://github.com/pav2000/DevBoardSTM32F103CBT/blob/main/Board/view_up_v150.png" width="480" /> <br>
-<img src="https://github.com/pav2000/DevBoardSTM32F103CBT/blob/main/Board/view_down_v150.png" width="480" /><br>
+<img src="https://github.com/pav2000/DevBoardSTM32F103CBT/blob/main/Board/view2_v150.jpg" width="480" /> <br>
+<img src="https://github.com/pav2000/DevBoardSTM32F103CBT/blob/main/Board/view3_v150.jpg" width="480" /> <br>
+<img src="https://github.com/pav2000/DevBoardSTM32F103CBT/blob/main/Board/view_up_v150.jpg" width="480" /> <br>
+<img src="https://github.com/pav2000/DevBoardSTM32F103CBT/blob/main/Board/view_down_v150.jpg" width="480" /><br>
 <br>
 Собранная плата ver 1.4: <br>
 <img src="https://github.com/pav2000/DevBoardSTM32F103CBT/blob/main/Board/view_v140.jpg" width="480" /><br>
