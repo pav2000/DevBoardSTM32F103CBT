@@ -240,7 +240,7 @@ uint8_t i,n=20, led=0;
 		 n=0;
 		 switch (led){
 		 case 0: {HAL_GPIO_WritePin(LED1_CE_NRF_GPIO_Port, LED1_CE_NRF_Pin,GPIO_PIN_RESET);HAL_GPIO_WritePin(GPIOB,LED2_Pin,GPIO_PIN_SET);HAL_GPIO_WritePin(GPIOC,LED3_Pin,GPIO_PIN_SET);
-		         ST7735_FillRectangle(80,7*STR_H-1,20,10,ST7735_RED);ST7735_FillRectangle(80,8*STR_H-1,20,10,ST7735_BLACK);ST7735_FillRectangle(80,9*STR_H-1,20,10,ST7735_BLACK);
+		         ST7735_FillRectangle(80,7*STR_H-1,20,10,ST7735_BLUE);ST7735_FillRectangle(80,8*STR_H-1,20,10,ST7735_BLACK);ST7735_FillRectangle(80,9*STR_H-1,20,10,ST7735_BLACK);
 		         led=1;break;}
 		 case 1: {HAL_GPIO_WritePin(LED1_CE_NRF_GPIO_Port, LED1_CE_NRF_Pin,GPIO_PIN_SET);HAL_GPIO_WritePin(GPIOB,LED2_Pin,GPIO_PIN_RESET);HAL_GPIO_WritePin(GPIOC,LED3_Pin,GPIO_PIN_SET);
                  ST7735_FillRectangle(80,7*STR_H-1,20,10,ST7735_BLACK);ST7735_FillRectangle(80,8*STR_H-1,20,10,ST7735_RED);ST7735_FillRectangle(80,9*STR_H-1,20,10,ST7735_BLACK);
@@ -306,7 +306,7 @@ uint16_t adc2=0;
 			 // Чтение аналоговой кнопки
 			 adc2=0;
 		     for(uint8_t i=0;i<10;i++)
-			    adc2 = adc2 + ADC_Result(&hadc1, 2);
+			    adc2 = adc2 + ADC_Result(&hadc1, 0);
 		     adc2=adc2/10;
              if((adc2>2400)&&(adc2<2500)){ // Кнопка установки RTC нажата
 
@@ -892,6 +892,33 @@ test_SPI_flash()
 		 if (HAL_GPIO_ReadPin(GPIOB, ENC_BTN_Pin) == 1)  return;  // выход по кнопке энкодера
 	  }
 
+}
 
+test_mcp4725(){
+	ST7735_FillScreen(ST7735_BLACK);
+	ST7735_FillRectangle(0, 0, 160-1, 12, ST7735_BLUE);
+	ST7735_DrawString(0, 1, "Test MCP4725 I2C1", Font_7x10, ST7735_YELLOW, ST7735_BLUE);
+
+    ST7735_DrawString(0, 118, "Exit - press encoder", Font_7x10, ST7735_YELLOW, ST7735_BLACK);
+
+    while (1)
+	  {
+		 HAL_Delay(20);
+		 if (HAL_GPIO_ReadPin(GPIOB, ENC_BTN_Pin) == 1)  return;  // выход по кнопке энкодера
+	  }
+}
+
+test_at24c128(){
+	ST7735_FillScreen(ST7735_BLACK);
+	ST7735_FillRectangle(0, 0, 160-1, 12, ST7735_BLUE);
+	ST7735_DrawString(0, 1, "Test AT24C128 I2C1", Font_7x10, ST7735_YELLOW, ST7735_BLUE);
+
+    ST7735_DrawString(0, 118, "Exit - press encoder", Font_7x10, ST7735_YELLOW, ST7735_BLACK);
+
+    while (1)
+	  {
+		 HAL_Delay(20);
+		 if (HAL_GPIO_ReadPin(GPIOB, ENC_BTN_Pin) == 1)  return;  // выход по кнопке энкодера
+	  }
 }
 

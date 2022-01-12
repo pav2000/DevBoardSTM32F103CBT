@@ -23,10 +23,12 @@ extern mMenu myMenu;   // текущее мению
 extern char buf[32];
 
 const char *menu_i2c_text[NUM_MENU_MAIN]={"1.Scan I2C bus",
-										  "2.Test vl53l01 (i2c)",
-								          "3.Test max30102 (i2c)",
-                                          "4.Test HMC5883L (i2c)",
-							              "5.Exit main menu", };
+										  "2.Test vl53l01  (0x29)",
+								          "3.Test max30102 (0x57)",
+                                          "4.Test HMC5883L (0x1e)",
+										  "5.Test MCP4725A (0x60)",
+										  "6.Test AT24C128 (0x50)",
+							              "7.Exit main menu" };
 
 // Стартовый экран
 void start_screen(void){
@@ -93,7 +95,9 @@ void menu_i2c_screen(void){
    		case 1: test_VL53L0x();screen_i2c(menu_i2c); break;
    		case 2: test_max30102();screen_i2c(menu_i2c); break;
    		case 3: test_hmc5883l();screen_i2c(menu_i2c); break;
-     	case 4: myMenu=mMain;  TIM1->ARR = (NUM_MENU_MAIN-1)*2+1;return; break; // Выход
+   		case 4: test_mcp4725();screen_i2c(menu_i2c); break;
+   		case 5: test_at24c128();screen_i2c(menu_i2c); break;
+     	case 6: myMenu=mMain;  TIM1->ARR = (NUM_MENU_MAIN-1)*2+1;return; break; // Выход
   		default: break;
 
     	}//switch (menu_i2c)
