@@ -133,6 +133,7 @@ void test_TFT(void)
 
 // HAL_Delay(2000);
 }
+
 // Тест аналоговых датчиков
 extern ADC_HandleTypeDef hadc1;
 extern char buf[32];
@@ -148,8 +149,8 @@ uint8_t i;
  ST7735_FillRectangle(0, 0, 160-1, 12, ST7735_BLUE);
  ST7735_DrawString(0, 1, "ADC test", Font_7x10, ST7735_YELLOW, ST7735_BLUE);
  ST7735_DrawString(0, 2*STR_H, "Photo resistor R28", Font_7x10, ST7735_YELLOW, ST7735_BLACK);
- ST7735_DrawString(0, 3*STR_H, "ADC1 CH0 counts", Font_7x10, ST7735_WHITE, ST7735_BLACK);
- ST7735_DrawString(0, 4*STR_H, "ADC1 CH0 (mV)", Font_7x10, ST7735_WHITE, ST7735_BLACK);
+ ST7735_DrawString(0, 3*STR_H, "ADC1 CH2 counts", Font_7x10, ST7735_WHITE, ST7735_BLACK);
+ ST7735_DrawString(0, 4*STR_H, "ADC1 CH2 (mV)", Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
  ST7735_DrawString(0, 6*STR_H, "Resistor R31", Font_7x10, ST7735_YELLOW, ST7735_BLACK);
  ST7735_DrawString(0, 7*STR_H, "ADC1 CH8 counts", Font_7x10, ST7735_WHITE, ST7735_BLACK);
@@ -163,7 +164,7 @@ uint8_t i;
 	 // Чтение ADC
 	 adc0=0;
      for(i=0;i<10;i++)
-	    adc0 = adc0 + ADC_Result(&hadc1, 0); // читаем полученное значение в переменную adc
+	    adc0 = adc0 + ADC_Result(&hadc1, 2); // читаем полученное значение в переменную adc
      adc0=adc0/10;
 	 itoa(adc0,buf,10);
 	 ST7735_FillRectangle(110, 3*STR_H, 49, STR_H, ST7735_BLACK);
@@ -192,15 +193,15 @@ uint8_t i;
   }
 
 }
-// Тест аналоговых кнопок  и светодиодов
 
+// Тест аналоговых кнопок  и светодиодов
 void test_keyADC_LEDS(void){
 uint16_t adc2=0;
 uint8_t i,n=20, led=0;
 	 ST7735_FillScreen(ST7735_BLACK);
 	 ST7735_FillRectangle(0, 0, 160-1, 12, ST7735_BLUE);
 	 ST7735_DrawString(0, 1, "Test key ADC & Leds", Font_7x10, ST7735_YELLOW, ST7735_BLUE);
-	 ST7735_DrawString(0, 2*STR_H, "Key ADC (ADC1 CH2)", Font_7x10, ST7735_YELLOW, ST7735_BLACK);
+	 ST7735_DrawString(0, 2*STR_H, "Key ADC (ADC1 CH0)", Font_7x10, ST7735_YELLOW, ST7735_BLACK);
 	 ST7735_DrawString(0, 3*STR_H, "ADC1 CH2 counts", Font_7x10, ST7735_WHITE, ST7735_BLACK);
 	 ST7735_DrawString(0, 4*STR_H, "Button pressed:", Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
@@ -220,7 +221,7 @@ uint8_t i,n=20, led=0;
 		 // Чтение ADC
 		 adc2=0;
 	     for(i=0;i<10;i++)
-		    adc2 = adc2 + ADC_Result(&hadc1, 2); // читаем полученное значение в переменную adc
+		    adc2 = adc2 + ADC_Result(&hadc1, 0); // читаем полученное значение в переменную adc
 	     adc2=adc2/10;
 		 itoa(adc2,buf,10);
 		 ST7735_FillRectangle(110, 3*STR_H, 49, STR_H, ST7735_BLACK);

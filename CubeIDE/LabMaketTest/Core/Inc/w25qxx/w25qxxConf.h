@@ -1,3 +1,5 @@
+//https://github.com/nimaltd/w25qxx
+
 #ifndef _W25QXXCONFIG_H
 #define _W25QXXCONFIG_H
 
