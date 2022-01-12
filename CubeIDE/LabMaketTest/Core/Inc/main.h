@@ -45,9 +45,10 @@ extern "C" {
 
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
-#define VERSION  "1.35"     // Версия тестовой программы
+#define HARDWARE "1.50"     // Версия платы (обязательно указывать)
+#define VERSION  "1.36"     // Версия тестовой программы
 #define STR_H           10  // Высота строки
-#define NUM_MENU_MAIN   9   // Число пунктов основного меню
+#define NUM_MENU_MAIN   10  // Число пунктов основного меню
 #define NUM_MENU_I2C    5   // Число пунктов i2c меню
 typedef enum {
   mMain,
@@ -77,6 +78,8 @@ void Error_Handler(void);
 #define SPI_CS2_nrf_GPIO_Port GPIOA
 #define LED2_Pin GPIO_PIN_1
 #define LED2_GPIO_Port GPIOB
+#define BOOT1_CS4_Pin GPIO_PIN_2
+#define BOOT1_CS4_GPIO_Port GPIOB
 #define LED1_CE_NRF_Pin GPIO_PIN_10
 #define LED1_CE_NRF_GPIO_Port GPIOB
 #define ONEWIRE_Pin GPIO_PIN_11

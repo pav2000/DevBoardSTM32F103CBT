@@ -62,15 +62,18 @@ RTC_DateTypeDef RtcDate;
 uint8_t r = 0;
 char buf[64];
 int EncVal=0;
-const char *menu_main_text[NUM_MENU_MAIN]={"1.Test TFT st7735",
-										 "2.Test analog sensor",
-										 "3.Test key & leds",
-										 "4.Test RTC stm32",
-										 "5.Test ds18b20",
-										 "6.Test I2C bus >>",
-										 "7.Test motor&ACS70331",
-										 "8.Test SD card",
-										 "9.Test nrf24l01"	};
+const char *menu_main_text[NUM_MENU_MAIN]={"0.Test TFT st7735",
+										   "1.Test analog sensor",
+										   "2.Test key & leds",
+										   "3.Test RTC stm32",
+										   "4.Test ds18b20",
+										   "5.Test I2C bus >>",
+										   "6.Test motor&ACS70331",
+										   "7.Test SD card",
+										   "8.Test nrf24l01",
+										   "9.Test SPI flash"
+
+                                           };
 
 uint8_t menu_main = 0;
 uint8_t menu_i2c = 0;
@@ -183,7 +186,9 @@ uint8_t old_menu = menu_main;  // Старая позиция меню
 //  test_hmc5883l();
 //  test_nrf24();
   ST7735_DrawImage(0, 10, 160, 58, (const uint16_t*) stm32logo); // вывести заставку
-  ST7735_DrawString(0, 108, "Hardware version: 1.4", Font_7x10, ST7735_RED, ST7735_WHITE);
+  ST7735_DrawString(0, 108, "Hardware version:", Font_7x10, ST7735_RED, ST7735_WHITE);
+  ST7735_DrawString(130, 108, HARDWARE, Font_7x10, ST7735_RED, ST7735_WHITE);
+
   ST7735_DrawString(0, 118, "Test prog version:", Font_7x10, ST7735_RED, ST7735_WHITE);
   ST7735_DrawString(130, 118, VERSION, Font_7x10, ST7735_RED, ST7735_WHITE);
   beep(200);
@@ -245,6 +250,7 @@ uint8_t old_menu = menu_main;  // Старая позиция меню
       		case 6: test_Stepper();start_screen(); break;
     		case 7: test_SD();start_screen(); break;
     		case 8: test_nrf24();start_screen(); break;
+    		case 9: test_SPI_flash();start_screen(); break;
       		default: break;
 
     	}
@@ -651,7 +657,7 @@ static void MX_GPIO_Init(void)
                           |BUZZER_Pin|STEP2_Pin|STEP3_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, TFT_CS_Pin|TFT_DC_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOB, BOOT1_CS4_Pin|TFT_CS_Pin|TFT_DC_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(TFT_RST_GPIO_Port, TFT_RST_Pin, GPIO_PIN_RESET);
@@ -679,8 +685,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : LED1_CE_NRF_Pin TFT_CS_Pin TFT_DC_Pin */
-  GPIO_InitStruct.Pin = LED1_CE_NRF_Pin|TFT_CS_Pin|TFT_DC_Pin;
+  /*Configure GPIO pins : BOOT1_CS4_Pin LED1_CE_NRF_Pin TFT_CS_Pin TFT_DC_Pin */
+  GPIO_InitStruct.Pin = BOOT1_CS4_Pin|LED1_CE_NRF_Pin|TFT_CS_Pin|TFT_DC_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;

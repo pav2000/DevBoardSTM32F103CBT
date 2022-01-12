@@ -9,6 +9,7 @@
 #include "max30102/max30102.h"
 #include "fatfs.h"
 #include "nrf24.h"
+#include "w25qxx/w25qxx.h"
 
 void test_TFT(void);
 void test_ADC(void);
@@ -830,6 +831,66 @@ void test_Stepper(void){
 	  }
 
 }
+// тестирование SPI flash памяти которая установлена на плате версии 1.5
+// Чип w25q32 (4 мегабайт)
+const char *typeChip[10]={"W25Q10",
+						  "W25Q20",
+						  "W25Q40",
+						  "W25Q80",
+						  "W25Q16",
+						  "W25Q32",
+						  "W25Q64",
+						  "W25Q128",
+						  "W25Q256",
+						  "W25Q512" };
+
+test_SPI_flash()
+{
+	ST7735_FillScreen(ST7735_BLACK);
+	ST7735_FillRectangle(0, 0, 160-1, 12, ST7735_BLUE);
+	ST7735_DrawString(0, 1, "Test SPI flash (SPI1)", Font_7x10, ST7735_YELLOW, ST7735_BLUE);
+
+    ST7735_DrawString(0, 118, "Exit - press encoder", Font_7x10, ST7735_YELLOW, ST7735_BLACK);
+
+    W25qxx_Init(); // Инициализация памяти и чтение информации о чипе памяти
+
+    sprintf(buf,"Chip type: %s",typeChip[w25qxx.ID-1]);
+    ST7735_DrawString(0, 1*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
 
+    sprintf(buf,"UniqID:%02X%02X%02X%02X%02X%02X%02X%02X",w25qxx.UniqID[0],w25qxx.UniqID[1],w25qxx.UniqID[2],w25qxx.UniqID[3],w25qxx.UniqID[4],w25qxx.UniqID[5],w25qxx.UniqID[6],w25qxx.UniqID[7]);
+    ST7735_DrawString(0, 2*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+
+    sprintf(buf,"Capacity kB: %d",w25qxx.CapacityInKiloByte);
+    ST7735_DrawString(0, 3*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+
+    sprintf(buf,"Page size byte: %d",w25qxx.PageSize);
+    ST7735_DrawString(0, 4*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+
+    sprintf(buf,"Page count: %d",w25qxx.PageCount);
+    ST7735_DrawString(0, 5*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+
+    sprintf(buf,"Sector size byte:%d",w25qxx.SectorSize);
+    ST7735_DrawString(0, 6*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+
+    sprintf(buf,"Sector count: %d",w25qxx.SectorCount);
+    ST7735_DrawString(0, 7*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+
+    sprintf(buf,"Block size byte:%d",w25qxx.BlockSize);
+    ST7735_DrawString(0, 8*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+
+    sprintf(buf,"Block count: %d",w25qxx.BlockCount);
+    ST7735_DrawString(0, 9*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+
+    sprintf(buf,"Status:0x%02x 0x%02x 0x%02x",w25qxx.StatusRegister1,w25qxx.StatusRegister2,w25qxx.StatusRegister3);
+    ST7735_DrawString(0, 9*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+
+    while (1)
+	  {
+		 HAL_Delay(20);
+		 if (HAL_GPIO_ReadPin(GPIOB, ENC_BTN_Pin) == 1)  return;  // выход по кнопке энкодера
+	  }
+
+
+}
 

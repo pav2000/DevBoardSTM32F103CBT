@@ -33,8 +33,10 @@ void start_screen(void){
  uint8_t i;
  ST7735_FillScreen(ST7735_BLACK);
  ST7735_FillRectangle(0, 0, 160-1, 12, ST7735_BLUE);
- ST7735_DrawString(0, 1, "Hardware 1.4 soft", Font_7x10, ST7735_YELLOW, ST7735_BLUE);
- ST7735_DrawString(122, 1, VERSION, Font_7x10, ST7735_YELLOW, ST7735_BLUE);
+ ST7735_DrawString(0, 1, "Hardware", Font_7x10, ST7735_YELLOW, ST7735_BLUE);
+ ST7735_DrawString(60, 1, HARDWARE, Font_7x10, ST7735_YELLOW, ST7735_BLUE);
+ ST7735_DrawString(94, 1, "soft", Font_7x10, ST7735_YELLOW, ST7735_BLUE);
+ ST7735_DrawString(124, 1, VERSION, Font_7x10, ST7735_YELLOW, ST7735_BLUE);
 // itoa(menu_main+1,buf,16);   // Вывести текущий пункт меню
 // ST7735_DrawString(150, 1, buf, Font_7x10, ST7735_RED, ST7735_BLUE);
  for(i=1;i<=NUM_MENU_MAIN;i++) ST7735_DrawString(0, 2+i*STR_H,menu_main_text[i-1], Font_7x10, ST7735_WHITE, ST7735_BLACK);  // нарисовать все пункты
