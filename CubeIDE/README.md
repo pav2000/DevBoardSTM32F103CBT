@@ -1,7 +1,8 @@
 Софт для платы для CubeMX IDE <br>
 Плата развивается, и некоторый софт перестает подходить, по этому проверяйте соответсвие софта и железа.<br>
 LabMaketTest_HW130.zip - тестовая программа для платы верии 1.3. <br>
-LabMaketTest - программа тестирования для версии платы 1.4 (текущая версия) <br>
+LabMaketTest_HW140.zip - тестовая программа для платы верии 1.4. <br>
+LabMaketTest - программа тестирования для версии платы 1.5 (текущая версия) <br>
 Examples - примеры проверены на версии платы 1.3, возможно будут работать на версии 1.4 <br>
 <br>
 Соединение перефирии:<br>
@@ -24,6 +25,7 @@ USB [USB_DP:PA12 USB_DM:PA11] <br>
 Buzzer:PB4 <br>
 Encoder [ENC_BTN:PB5, ENC_B:PB8, ENC_A:PB9] <br>
 I2C1 [I2C1_SDA:PB7, I2C1_SCL:PB6] <br>
+
 <br>
 <b>Hardware pins version 1.4 </b><br>
 led1_CE_nrf: [PB10]<br>
@@ -47,6 +49,31 @@ Encoder internal: [ENC_BTN:PB5, ENC_B:PA8, ENC_A:PA9]<br>
 Encoder external: [ENC_BTN:PC13, ENC_B:PA8, ENC_A:PA9] (alt)<br>
 I2C1: [I2C1_SDA:PB7, I2C1_SCL:PB6]<br>
 <br>
+
+<br>
+<b>Hardware pins version 1.5 </b><br>
+led1_CE_nrf: [PB10]<br>
+LED2 (maple mini led): [PB1]<br> 
+LED3+Key_sensor: [PC13]<br>
+TFT backlight (PWM): [TFT_LED:PA1]<br>
+Analog buttons:[ADC0:PA0]<br>
+Value resistor (R31): [ADC8:PB0]<br>
+SPI1 pins: [SPI_SCK:PA5, SPI_MISO:PA6, SPI_MOSI:PA7]<br>
+SPI1 TFT: [TFT_CS:PB13, TFT_RST:PA15, SPI_DC:PB14]<br>
+SPI1 nrf24l01: [SPI_CS2_nrf:PA4, led1_CE_nrf:PB10]<br>
+SPI1 SD card: [SPI_CS3_sd:PA10]<br>
+SPI1 W25Q64: [SPI_CS4_boot1:PB2]<br>
+Photo resistor R28 (alt usart2 TX): [ADC2:PA2]<br> 
+Current sensor ACS70331 (alt usart2 RX): [ADC3:PA3]<br> 
+USART2 (alt function): [TX:PA2, RX:PA3]<br>
+OneWire DS18b20: [PB11]<br>
+STEPPER: [PB12, PB8, PB9, PB15]<br>
+USB: [USB_DP:PA12 USB_DM:PA11]<br>
+Buzzer: [PB4]<br>
+Encoder internal: [ENC_BTN:PB5, ENC_B:PA8, ENC_A:PA9]<br>
+Encoder external: [ENC_BTN:PC13, ENC_B:PA8, ENC_A:PA9] (alt)<br>
+I2C1: [I2C1_SDA:PB7, I2C1_SCL:PB6]<br>
+<br> 
 
 
 

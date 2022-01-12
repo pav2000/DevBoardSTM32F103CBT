@@ -55,13 +55,13 @@ DataSheet - документация на отдельные микросхем�
 - питание ядра контроллера от батарейки 3 В;<br>
 - габаритные размеры: 100х105 мм;<br>
 
-Внешний вид платы ver 1.4: <br>
-<img src="https://github.com/pav2000/DevBoardSTM32F103CBT/blob/main/Board/view1_v140.png" width="480" /> <br>
-<img src="https://github.com/pav2000/DevBoardSTM32F103CBT/blob/main/Board/view_up_v140.png" width="480" /> <br>
-<img src="https://github.com/pav2000/DevBoardSTM32F103CBT/blob/main/Board/view_down_v140.png" width="480" /><br>
+Внешний вид платы ver 1.5: <br>
+<img src="https://github.com/pav2000/DevBoardSTM32F103CBT/blob/main/Board/view2_v150.png" width="480" /> <br>
+<img src="https://github.com/pav2000/DevBoardSTM32F103CBT/blob/main/Board/view3_v150.png" width="480" /> <br>
+<img src="https://github.com/pav2000/DevBoardSTM32F103CBT/blob/main/Board/view_up_v150.png" width="480" /> <br>
+<img src="https://github.com/pav2000/DevBoardSTM32F103CBT/blob/main/Board/view_down_v150.png" width="480" /><br>
 <br>
-Собранная плата ver 1.3: <br>
-<img src="https://github.com/pav2000/DevBoardSTM32F103CBT/blob/main/Board/view_v130.jpg" width="480" /><br>
 Собранная плата ver 1.4: <br>
 <img src="https://github.com/pav2000/DevBoardSTM32F103CBT/blob/main/Board/view_v140.jpg" width="480" /><br>
+
 
