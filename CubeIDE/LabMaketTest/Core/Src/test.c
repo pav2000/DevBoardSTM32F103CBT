@@ -23,6 +23,9 @@ void test_hmc5883l(void);
 void test_SD(void);
 void test_nrf24(void);
 void test_Stepper(void);
+void test_SPI_flash(void);
+void test_mcp4725(void);
+void test_at24c128(void);
 
 extern void setDateTime(void);
 extern char * my_ftoa(double f, char * buf, int precision);
@@ -160,7 +163,7 @@ uint8_t i;
  ST7735_DrawString(0, 118, "Exit - press encoder", Font_7x10, ST7735_YELLOW, ST7735_BLACK);
  while (1)
   {
-	 if (HAL_GPIO_ReadPin(GPIOB, ENC_BTN_Pin) == 1) break;  // выход по кнопке энкодера
+	 if (HAL_GPIO_ReadPin(ENC_BTN_GPIO_Port, ENC_BTN_Pin) == 1) break;  // выход по кнопке энкодера
 	 // Чтение ADC
 	 adc0=0;
      for(i=0;i<10;i++)
@@ -214,7 +217,7 @@ uint8_t i,n=20, led=0;
 	 ST7735_DrawString(0, 118, "Exit - press encoder", Font_7x10, ST7735_YELLOW, ST7735_BLACK);
 	 while (1)
 	  {
-		 if (HAL_GPIO_ReadPin(GPIOB, ENC_BTN_Pin) == 1){
+		 if (HAL_GPIO_ReadPin(ENC_BTN_GPIO_Port, ENC_BTN_Pin) == 1){
 			 HAL_GPIO_WritePin(LED1_CE_NRF_GPIO_Port, LED1_CE_NRF_Pin,GPIO_PIN_SET);HAL_GPIO_WritePin(GPIOB,LED2_Pin,GPIO_PIN_SET);HAL_GPIO_WritePin(GPIOC,LED3_Pin,GPIO_PIN_SET);// Погасить все светодиоды
 			 break;  // выход по кнопке энкодера
 		 }
@@ -315,7 +318,7 @@ uint16_t adc2=0;
              }
 
 		 HAL_Delay(100);
-		 if (HAL_GPIO_ReadPin(GPIOB, ENC_BTN_Pin) == 1) break;  // выход по кнопке энкодера
+		 if (HAL_GPIO_ReadPin(ENC_BTN_GPIO_Port, ENC_BTN_Pin) == 1) break;  // выход по кнопке энкодера
 
 	  }
 }
@@ -364,7 +367,7 @@ void test_ds18b20(){
 		    ST7735_DrawString(80, 7*STR_H, buf, Font_7x10, ST7735_RED, ST7735_BLACK);
 
 		 HAL_Delay(150);
-		 if (HAL_GPIO_ReadPin(GPIOB, ENC_BTN_Pin) == 1)  return;  // выход по кнопке энкодера
+		 if (HAL_GPIO_ReadPin(ENC_BTN_GPIO_Port, ENC_BTN_Pin) == 1)  return;  // выход по кнопке энкодера
 
 	  }
 }
@@ -406,7 +409,7 @@ void scan_i2c(){
      while (1)
 	  {
 		 HAL_Delay(20);
-		 if (HAL_GPIO_ReadPin(GPIOB, ENC_BTN_Pin) == 1)  return;  // выход по кнопке энкодера
+		 if (HAL_GPIO_ReadPin(ENC_BTN_GPIO_Port, ENC_BTN_Pin) == 1)  return;  // выход по кнопке энкодера
 	  }
 }
 
@@ -472,7 +475,7 @@ void test_VL53L0x(void){
  		 if ( VL53L0X_timeoutOccurred(&myTOFsensor) ) {
  			ST7735_DrawString(0, 4*STR_H, "TIMEOUT", Font_7x10, ST7735_WHITE, ST7735_BLACK);
  		 }
-		 if (HAL_GPIO_ReadPin(GPIOB, ENC_BTN_Pin) == 1)  return;  // выход по кнопке энкодера
+		 if (HAL_GPIO_ReadPin(ENC_BTN_GPIO_Port, ENC_BTN_Pin) == 1)  return;  // выход по кнопке энкодера
 
 	  }
 }
@@ -514,7 +517,7 @@ void test_max30102(void){
  //        Max30102_InterruptCallback();
 		// HAL_Delay(150);
     	 HAL_Delay(20);
-		 if (HAL_GPIO_ReadPin(GPIOB, ENC_BTN_Pin) == 1){  return;}  // выход по кнопке энкодера
+		 if (HAL_GPIO_ReadPin(ENC_BTN_GPIO_Port, ENC_BTN_Pin) == 1){  return;}  // выход по кнопке энкодера
 	  }
 
 }
@@ -628,7 +631,7 @@ void test_hmc5883l(void){
 			 headingDegrees_old=headingDegrees;
 			   }
          HAL_Delay(100);
-		 if (HAL_GPIO_ReadPin(GPIOB, ENC_BTN_Pin) == 1){ max30102_OFF(); return;}  // выход по кнопке энкодера
+		 if (HAL_GPIO_ReadPin(ENC_BTN_GPIO_Port, ENC_BTN_Pin) == 1){ max30102_OFF(); return;}  // выход по кнопке энкодера
 	  }
 
 }
@@ -706,7 +709,7 @@ void test_SD(void){
      while (1)
 	  {
 		 HAL_Delay(20);
-		 if (HAL_GPIO_ReadPin(GPIOB, ENC_BTN_Pin) == 1)  return;  // выход по кнопке энкодера
+		 if (HAL_GPIO_ReadPin(ENC_BTN_GPIO_Port, ENC_BTN_Pin) == 1)  return;  // выход по кнопке энкодера
 	  }
 
 }
@@ -761,7 +764,7 @@ void test_nrf24(void){
      while (1)
 	  {
 		 HAL_Delay(20);
-		 if (HAL_GPIO_ReadPin(GPIOB, ENC_BTN_Pin) == 1)  return;  // выход по кнопке энкодера
+		 if (HAL_GPIO_ReadPin(ENC_BTN_GPIO_Port, ENC_BTN_Pin) == 1)  return;  // выход по кнопке энкодера
 	  }
 
 }
@@ -823,7 +826,7 @@ void test_Stepper(void){
     	 HAL_GPIO_WritePin(STEP4_GPIO_Port, STEP4_Pin, GPIO_PIN_SET);
     	 HAL_Delay(speed);
 
-		 if (HAL_GPIO_ReadPin(GPIOB, ENC_BTN_Pin) == 1) {   // выход по кнопке энкодера
+		 if (HAL_GPIO_ReadPin(ENC_BTN_GPIO_Port, ENC_BTN_Pin) == 1) {   // выход по кнопке энкодера
 	     HAL_GPIO_WritePin(STEP1_GPIO_Port, STEP1_Pin, GPIO_PIN_RESET);
 		 HAL_GPIO_WritePin(STEP2_GPIO_Port, STEP2_Pin, GPIO_PIN_RESET);
 		 HAL_GPIO_WritePin(STEP3_GPIO_Port, STEP3_Pin, GPIO_PIN_RESET);
@@ -845,7 +848,7 @@ const char *typeChip[10]={"W25Q10",
 						  "W25Q256",
 						  "W25Q512" };
 
-test_SPI_flash()
+void test_SPI_flash(void)
 {
 	ST7735_FillScreen(ST7735_BLACK);
 	ST7735_FillRectangle(0, 0, 160-1, 12, ST7735_BLUE);
@@ -862,39 +865,55 @@ test_SPI_flash()
     sprintf(buf,"UniqID:%02X%02X%02X%02X%02X%02X%02X%02X",w25qxx.UniqID[0],w25qxx.UniqID[1],w25qxx.UniqID[2],w25qxx.UniqID[3],w25qxx.UniqID[4],w25qxx.UniqID[5],w25qxx.UniqID[6],w25qxx.UniqID[7]);
     ST7735_DrawString(0, 2*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
-    sprintf(buf,"Capacity kB: %d",w25qxx.CapacityInKiloByte);
+    sprintf(buf,"Capacity kB: %d",(int)w25qxx.CapacityInKiloByte);
     ST7735_DrawString(0, 3*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
     sprintf(buf,"Page size byte: %d",w25qxx.PageSize);
     ST7735_DrawString(0, 4*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
-    sprintf(buf,"Page count: %d",w25qxx.PageCount);
+    sprintf(buf,"Page count: %d",(int)w25qxx.PageCount);
     ST7735_DrawString(0, 5*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
-    sprintf(buf,"Sector size byte:%d",w25qxx.SectorSize);
+    sprintf(buf,"Sector size byte:%d",(int)w25qxx.SectorSize);
     ST7735_DrawString(0, 6*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
-    sprintf(buf,"Sector count: %d",w25qxx.SectorCount);
+    sprintf(buf,"Sector count: %d",(int)w25qxx.SectorCount);
     ST7735_DrawString(0, 7*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
-    sprintf(buf,"Block size byte:%d",w25qxx.BlockSize);
+    sprintf(buf,"Block size byte:%d",(int)w25qxx.BlockSize);
     ST7735_DrawString(0, 8*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
-    sprintf(buf,"Block count: %d",w25qxx.BlockCount);
+    sprintf(buf,"Block count: %d",(int)w25qxx.BlockCount);
     ST7735_DrawString(0, 9*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
     sprintf(buf,"Status:0x%02x 0x%02x 0x%02x",w25qxx.StatusRegister1,w25qxx.StatusRegister2,w25qxx.StatusRegister3);
     ST7735_DrawString(0, 9*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
+    // Тест на скорость записи
+    uint8_t bufSector[4096+1]={55};
+    uint start=HAL_GetTick();
+    W25qxx_WriteSector(bufSector, 0, 0, 4096);
+    uint t=HAL_GetTick()-start;
+    sprintf(buf,"Write 4 kB  msec: %d",t);
+    ST7735_DrawString(0, 10*STR_H-1, buf, Font_7x10, ST7735_RED, ST7735_BLACK);
+
+    // Тест на скорость чтения
+    start=HAL_GetTick();
+    W25qxx_ReadSector(bufSector, 0, 0, 4096);
+    t=HAL_GetTick()-start;
+    sprintf(buf,"Read 4 kB  msec: %d",t);
+    ST7735_DrawString(0, 11*STR_H-2, buf, Font_7x10, ST7735_RED, ST7735_BLACK);
+
+
     while (1)
 	  {
 		 HAL_Delay(20);
-		 if (HAL_GPIO_ReadPin(GPIOB, ENC_BTN_Pin) == 1)  return;  // выход по кнопке энкодера
+		 if (HAL_GPIO_ReadPin(ENC_BTN_GPIO_Port, ENC_BTN_Pin) == 1)  return;  // выход по кнопке энкодера
 	  }
 
 }
 
-test_mcp4725(){
+void test_mcp4725(void){
 	ST7735_FillScreen(ST7735_BLACK);
 	ST7735_FillRectangle(0, 0, 160-1, 12, ST7735_BLUE);
 	ST7735_DrawString(0, 1, "Test MCP4725 I2C1", Font_7x10, ST7735_YELLOW, ST7735_BLUE);
@@ -904,11 +923,11 @@ test_mcp4725(){
     while (1)
 	  {
 		 HAL_Delay(20);
-		 if (HAL_GPIO_ReadPin(GPIOB, ENC_BTN_Pin) == 1)  return;  // выход по кнопке энкодера
+		 if (HAL_GPIO_ReadPin(ENC_BTN_GPIO_Port, ENC_BTN_Pin) == 1)  return;  // выход по кнопке энкодера
 	  }
 }
 
-test_at24c128(){
+void test_at24c128(void){
 	ST7735_FillScreen(ST7735_BLACK);
 	ST7735_FillRectangle(0, 0, 160-1, 12, ST7735_BLUE);
 	ST7735_DrawString(0, 1, "Test AT24C128 I2C1", Font_7x10, ST7735_YELLOW, ST7735_BLUE);
@@ -918,7 +937,7 @@ test_at24c128(){
     while (1)
 	  {
 		 HAL_Delay(20);
-		 if (HAL_GPIO_ReadPin(GPIOB, ENC_BTN_Pin) == 1)  return;  // выход по кнопке энкодера
+		 if (HAL_GPIO_ReadPin(ENC_BTN_GPIO_Port, ENC_BTN_Pin) == 1)  return;  // выход по кнопке энкодера
 	  }
 }
 
