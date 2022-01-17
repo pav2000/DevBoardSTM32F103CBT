@@ -106,6 +106,7 @@ extern void test_max30102(void);
 extern void test_hmc5883l(void);
 extern void test_SD(void);
 extern void test_nrf24(void);
+extern void test_SPI_flash(void);
 void test_Stepper(void);
 /* USER CODE END PFP */
 

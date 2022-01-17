@@ -11,6 +11,7 @@
 #include "nrf24.h"
 #include "w25qxx/w25qxx.h"
 #include "user_at24cxx.h"
+#include "MCP4725.h"
 
 
 void test_TFT(void);
@@ -922,15 +923,44 @@ void test_mcp4725(void){
 
     ST7735_DrawString(0, 118, "Exit - press encoder", Font_7x10, ST7735_YELLOW, ST7735_BLACK);
 
+    sprintf(buf,"I2C address: 0x%02x",MCP4725A0_ADDR_A00); // Адрес памяти
+    ST7735_DrawString(0, 1*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+
+	MCP4725 myMCP4725;
+	myMCP4725 = MCP4725_init(&hi2c1, MCP4725A0_ADDR_A00, 3.30);
+	// Check the connection:
+	if(MCP4725_isConnected(&myMCP4725)){ /* Print that the DAC is connected */
+		sprintf(buf,"MCP4725 is connected ");
+		ST7735_DrawString(0, 2*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+	}
+	else{ /* Print that the DAC is NOT connected */
+		sprintf(buf,"MCP4725 is NOT connected ");
+		ST7735_DrawString(0, 2*STR_H, buf, Font_7x10, ST7735_RED, ST7735_BLACK);
+	}
+
+	MCP4725_setValue(&myMCP4725, 4095, MCP4725_FAST_MODE, MCP4725_POWER_DOWN_OFF); // погасить светодиод dac=3.3v
+	uint16_t dac=0;
+	sprintf(buf,"DAC value:");
+	ST7735_DrawString(0, 3*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+
     while (1)
 	  {
-		 HAL_Delay(20);
-		 if (HAL_GPIO_ReadPin(ENC_BTN_GPIO_Port, ENC_BTN_Pin) == 1)  return;  // выход по кнопке энкодера
+    	 MCP4725_setValue(&myMCP4725, dac, MCP4725_FAST_MODE, MCP4725_POWER_DOWN_OFF);
+		 HAL_Delay(5);
+		 ST7735_FillRectangle(80, 3*STR_H, 30, 10, ST7735_BLACK);
+		 sprintf(buf,"%d",dac);
+		 ST7735_DrawString(80, 3*STR_H, buf, Font_7x10, ST7735_RED, ST7735_BLACK);
+
+		 if(dac>=4096) dac=0; else dac=dac+10;
+		 if (HAL_GPIO_ReadPin(ENC_BTN_GPIO_Port, ENC_BTN_Pin) == 1) {
+			 MCP4725_setValue(&myMCP4725, 4095, MCP4725_FAST_MODE, MCP4725_POWER_DOWN_OFF);
+			 return;  // выход по кнопке энкодера
+		 }
 	  }
 }
 
+// Тест флаш памяти на интрефейсе I2C
 char *HAL_Return[4]={"OK","ERROR","BUSY","TIMEOUT"};  // Расшифровка кодов возврата hal i2c
-
 void test_at24c128(void){
 
 	ST7735_FillScreen(ST7735_BLACK);
@@ -943,18 +973,17 @@ char testBuf[]="Test at24c128 flash.";
 AT24_HandleTypeDef at24c128;
 
 AT24CXX_Init(&at24c128);
-//sprintf(buf,"Init chip: %d",AT24CXX_Init(&at24c128));
-//ST7735_DrawString(0, 1*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+
 sprintf(buf,"I2C address: 0x%02x",AT24_DEV_ADDR); // Адрес памяти
 ST7735_DrawString(0, 1*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
-sprintf(buf,"Write chip: %s",HAL_Return[AT24CXX_Sequencial_Write(&at24c128, 0x00, testBuf, strlen(testBuf))]);
+sprintf(buf,"Write chip: %s",HAL_Return[AT24CXX_Sequencial_Write(&at24c128, 0x00,(uint8_t*)testBuf, strlen(testBuf))]);
 ST7735_DrawString(0, 3*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
 sprintf(buf,"> %s",testBuf);
 ST7735_DrawString(0, 4*STR_H, buf, Font_7x10, ST7735_RED, ST7735_BLACK);
 
-sprintf(buf,"Read chip: %s",HAL_Return[AT24CXX_Sequencial_Read(&at24c128, 0x00, testBuf, strlen(testBuf))]);
+sprintf(buf,"Read chip: %s",HAL_Return[AT24CXX_Sequencial_Read(&at24c128, 0x00,(uint8_t*)testBuf, strlen(testBuf))]);
 ST7735_DrawString(0, 5*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
 sprintf(buf,"< %s",testBuf);
@@ -964,18 +993,18 @@ ST7735_DrawString(0, 6*STR_H, buf, Font_7x10, ST7735_YELLOW, ST7735_BLACK);
 sprintf(buf,"Test write/read flash");
 ST7735_DrawString(0, 8*STR_H-1, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
-uint8_t bufSector[4096+1]={55};
+uint8_t bufSector[256]={55};
 uint start=HAL_GetTick();
-AT24CXX_Sequencial_Write(&at24c128, 0x00, bufSector, 4096);
+AT24CXX_Sequencial_Write(&at24c128, 0x00, bufSector, 255);
 uint t=HAL_GetTick()-start;
-sprintf(buf,"Write 4 kB  msec: %d",t);
+sprintf(buf,"Write 256 b msec: %d",t);
 ST7735_DrawString(0, 9*STR_H-1, buf, Font_7x10, ST7735_RED, ST7735_BLACK);
 
 // Тест на скорость чтения
 start=HAL_GetTick();
-AT24CXX_Sequencial_Read(&at24c128, 0x00, bufSector, 4096);
+AT24CXX_Sequencial_Read(&at24c128, 0x00, bufSector, (uint8_t)255);
 t=HAL_GetTick()-start;
-sprintf(buf,"Read 4 kB  msec: %d",t);
+sprintf(buf,"Read 256 b msec: %d",t);
 ST7735_DrawString(0, 10*STR_H-2, buf, Font_7x10, ST7735_RED, ST7735_BLACK);
 
     while (1)

@@ -5,6 +5,9 @@ extern void scan_i2c(void);
 extern void test_VL53L0x(void);
 extern void test_max30102(void);
 extern void test_hmc5883l(void);
+extern void test_mcp4725(void);
+extern void test_at24c128(void);
+
 
 void start_screen(void);
 void screen_i2c(uint8_t menu);
