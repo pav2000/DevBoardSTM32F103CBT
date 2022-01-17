@@ -61,7 +61,7 @@ DataSheet - документация на отдельные микросхем�
 <img src="https://github.com/pav2000/DevBoardSTM32F103CBT/blob/main/Board/view_up_v150.jpg" width="480" /> <br>
 <img src="https://github.com/pav2000/DevBoardSTM32F103CBT/blob/main/Board/view_down_v150.jpg" width="480" /><br>
 <br>
-Собранная плата ver 1.4: <br>
-<img src="https://github.com/pav2000/DevBoardSTM32F103CBT/blob/main/Board/view_v140.jpg" width="480" /><br>
+Собранная плата ver 1.5: <br>
+<img src="https://github.com/pav2000/DevBoardSTM32F103CBT/blob/main/Board/view_v150.jpg" width="480" /><br>
 
 
