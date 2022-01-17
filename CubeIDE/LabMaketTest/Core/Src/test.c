@@ -10,6 +10,8 @@
 #include "fatfs.h"
 #include "nrf24.h"
 #include "w25qxx/w25qxx.h"
+#include "user_at24cxx.h"
+
 
 void test_TFT(void);
 void test_ADC(void);
@@ -927,12 +929,54 @@ void test_mcp4725(void){
 	  }
 }
 
+char *HAL_Return[4]={"OK","ERROR","BUSY","TIMEOUT"};  // Расшифровка кодов возврата hal i2c
+
 void test_at24c128(void){
+
 	ST7735_FillScreen(ST7735_BLACK);
 	ST7735_FillRectangle(0, 0, 160-1, 12, ST7735_BLUE);
 	ST7735_DrawString(0, 1, "Test AT24C128 I2C1", Font_7x10, ST7735_YELLOW, ST7735_BLUE);
 
     ST7735_DrawString(0, 118, "Exit - press encoder", Font_7x10, ST7735_YELLOW, ST7735_BLACK);
+
+char testBuf[]="Test at24c128 flash.";
+AT24_HandleTypeDef at24c128;
+
+AT24CXX_Init(&at24c128);
+//sprintf(buf,"Init chip: %d",AT24CXX_Init(&at24c128));
+//ST7735_DrawString(0, 1*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+sprintf(buf,"I2C address: 0x%02x",AT24_DEV_ADDR); // Адрес памяти
+ST7735_DrawString(0, 1*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+
+sprintf(buf,"Write chip: %s",HAL_Return[AT24CXX_Sequencial_Write(&at24c128, 0x00, testBuf, strlen(testBuf))]);
+ST7735_DrawString(0, 3*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+
+sprintf(buf,"> %s",testBuf);
+ST7735_DrawString(0, 4*STR_H, buf, Font_7x10, ST7735_RED, ST7735_BLACK);
+
+sprintf(buf,"Read chip: %s",HAL_Return[AT24CXX_Sequencial_Read(&at24c128, 0x00, testBuf, strlen(testBuf))]);
+ST7735_DrawString(0, 5*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+
+sprintf(buf,"< %s",testBuf);
+ST7735_DrawString(0, 6*STR_H, buf, Font_7x10, ST7735_YELLOW, ST7735_BLACK);
+
+// Тест на скорость записи
+sprintf(buf,"Test write/read flash");
+ST7735_DrawString(0, 8*STR_H-1, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+
+uint8_t bufSector[4096+1]={55};
+uint start=HAL_GetTick();
+AT24CXX_Sequencial_Write(&at24c128, 0x00, bufSector, 4096);
+uint t=HAL_GetTick()-start;
+sprintf(buf,"Write 4 kB  msec: %d",t);
+ST7735_DrawString(0, 9*STR_H-1, buf, Font_7x10, ST7735_RED, ST7735_BLACK);
+
+// Тест на скорость чтения
+start=HAL_GetTick();
+AT24CXX_Sequencial_Read(&at24c128, 0x00, bufSector, 4096);
+t=HAL_GetTick()-start;
+sprintf(buf,"Read 4 kB  msec: %d",t);
+ST7735_DrawString(0, 10*STR_H-2, buf, Font_7x10, ST7735_RED, ST7735_BLACK);
 
     while (1)
 	  {
