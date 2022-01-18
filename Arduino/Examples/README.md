@@ -9,7 +9,7 @@ Modbus пример работает на версиях 1.2 1.3 1.4 (номер
 <br>
 
 Соединение перефирии:<br>
-<b>Hardware 1.3 </b><br>
+<b>Hardware 1.3 (аналогично 1.2)</b><br>
 Key_sensor+LED3:PC13<br>
 Photo (R30) ADC0:PA0<br>
 SPI 1  [SPI_SCK:PA5, SPI_MISO:PA6, SPI_MOSI:PA7]<br>
