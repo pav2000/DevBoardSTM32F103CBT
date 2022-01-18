@@ -5,7 +5,10 @@
  по сравнению с Arduino Nano.<br>
 Данная плата должна быть прошита загрузчиком от maple mini и при выборе платы в менеджере плат надо выбирать maple mini.<br>
 Загрузчик надо шить generic-none_bootloader.bin (с maple_mini_boot20.bin почему то не появлялся ком порт) но DFU появлялось<br>
-bootloaderSTM32.zip - содержит два варианта загрузчиков.
+bootloaderSTM32.zip - содержит два варианта загрузчиков для платы.<br>
+Директория tools содержит утилиту для обмена по modbus и драйвера для чипа ch340 (usb-uart), оба архива для windows.<br>
+Директория Examples - содержит различные примеры по работе с периферией платы.<br>
+Директория Lib - содержит библиотеки (в них есть простые примеры работы, но надо настраивать под плату) для работы с периферией платы.<br>
 <br>
 Интеграция stm32f103 в среду arduino описана вот здесь:<br>
 https://habr.com/ru/post/395577/<br>
@@ -20,5 +23,5 @@ https://www.youtube.com/watch?v=878k4KqF7Xs<br>
 https://www.youtube.com/watch?v=K-jYSysmw9w<br>
 https://www.youtube.com/watch?v=zUk0lN1oEwQ<br>
 <br>
-github с доработками для ардуино https://github.com/rogerclarkmelbourne/Arduino_STM32<br>
+github с доработками для ардуино под stm32 https://github.com/rogerclarkmelbourne/Arduino_STM32<br>
 
