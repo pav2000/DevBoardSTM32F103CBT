@@ -71,9 +71,7 @@ const char *menu_main_text[NUM_MENU_MAIN]={"0.Test TFT st7735",
 										   "6.Test motor&ACS70331",
 										   "7.Test SD card",
 										   "8.Test nrf24l01",
-										   "9.Test SPI flash"
-
-                                           };
+										   "9.Test SPI flash" };
 
 uint8_t menu_main = 0;
 uint8_t menu_i2c = 0;
@@ -184,8 +182,6 @@ uint8_t old_menu = menu_main;  // Старая позиция меню
  // ST7735_Backlight_On(); // Включить подсветку дисплея
   ST7735_SetRotation(3);
   ST7735_FillScreen(ST7735_WHITE);
-//  test_hmc5883l();
-//  test_nrf24();
   ST7735_DrawImage(0, 10, 160, 58, (const uint16_t*) stm32logo); // вывести заставку
   ST7735_DrawString(0, 108, "Hardware version:", Font_7x10, ST7735_RED, ST7735_WHITE);
   ST7735_DrawString(130, 108, HARDWARE, Font_7x10, ST7735_RED, ST7735_WHITE);
@@ -193,7 +189,7 @@ uint8_t old_menu = menu_main;  // Старая позиция меню
   ST7735_DrawString(0, 118, "Test prog version:", Font_7x10, ST7735_RED, ST7735_WHITE);
   ST7735_DrawString(130, 118, VERSION, Font_7x10, ST7735_RED, ST7735_WHITE);
   beep(200);
-  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2); // Включить ШИМ
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2); // Включить ШИМ на подсветку дисплея
   for (uint8_t i=0;i<100;i++){
 	  ST7735_Backlight(i);                  // Установить ярокость
 	  HAL_Delay(50);
@@ -207,8 +203,6 @@ uint8_t old_menu = menu_main;  // Старая позиция меню
  // HAL_GPIO_WritePin(GPIOB, LED2_Pin, GPIO_PIN_SET);    // Установить светодиод 2 в 1
   HAL_GPIO_WritePin(LED1_CE_NRF_GPIO_Port, LED1_CE_NRF_Pin, GPIO_PIN_RESET);    // Установить светодиод 1 в 0
  // HAL_GPIO_WritePin(GPIOA, TFT_LED_Pin, GPIO_PIN_SET); // Включить подсветку дисплея
-
-//  HAL_ADCEx_Calibration_Start(&hadc1);   // Калибровка первого ADC
 
 
   start_screen();
@@ -247,7 +241,7 @@ uint8_t old_menu = menu_main;  // Старая позиция меню
     		case 2: test_keyADC_LEDS();start_screen(); break;
       		case 3: test_RTC();start_screen(); break;
       		case 4: test_ds18b20();start_screen(); break;
-      		case 5: menu_i2c_screen();TIM1->CNT=5*2; start_screen(); break; // Подменю, с возвратом на туже позицию
+      		case 5: menu_i2c_screen();TIM1->CNT=5*2; start_screen(); break; // Подменю, с возвратом на ту же позицию
       		case 6: test_Stepper();start_screen(); break;
     		case 7: test_SD();start_screen(); break;
     		case 8: test_nrf24();start_screen(); break;

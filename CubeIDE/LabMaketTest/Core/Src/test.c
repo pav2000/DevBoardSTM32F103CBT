@@ -129,6 +129,8 @@ void test_TFT(void)
  // Проверка регулирования яркости дисплея
  ST7735_FillScreen(ST7735_WHITE);
  ST7735_DrawString(8, 50, "BACKLIGHT", Font_16x26, ST7735_BLACK, ST7735_WHITE);
+ ST7735_DrawString(12, 80, "Uses TIM 2 chanal 2", Font_7x10, ST7735_BLACK, ST7735_WHITE);
+
  for (int i=0;i<100;i++){ST7735_Backlight(i);HAL_Delay(20); }
  for (int i=0;i<100;i++){ST7735_Backlight(100-i);HAL_Delay(50); }
  ST7735_Backlight(100);
