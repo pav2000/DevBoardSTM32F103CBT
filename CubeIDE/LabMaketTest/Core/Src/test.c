@@ -37,7 +37,8 @@ extern void beep(uint16_t t);
 
 extern I2C_HandleTypeDef hi2c1;
 extern uint32_t ADC_Result(ADC_HandleTypeDef *hadc, uint32_t ch);
-//extern const unsigned char gImage_icon03_1[]; // Заставка
+
+// Тест экрана
 void test_TFT(void)
 {
 
@@ -126,7 +127,7 @@ void test_TFT(void)
  ST7735_FillTriangle(0, 0, ST7735_GetWidth() / 2, ST7735_GetHeight(), ST7735_GetWidth(), 0, ST7735_RED);
  HAL_Delay(1000);
 
- // Проверка регулирования яркости дисплея
+ // Проверка регулирования яркости дисплея с помощью аппаратного таймера IM 2 chanal 2
  ST7735_FillScreen(ST7735_WHITE);
  ST7735_DrawString(8, 50, "BACKLIGHT", Font_16x26, ST7735_BLACK, ST7735_WHITE);
  ST7735_DrawString(12, 80, "Uses TIM 2 chanal 2", Font_7x10, ST7735_BLACK, ST7735_WHITE);
@@ -150,8 +151,6 @@ void test_ADC(void)
 uint16_t adc8=0,adc0=0;
 uint32_t volt=0;
 uint8_t i;
-
-//HAL_NVIC_DisableIRQ(EXTI9_5_IRQn) ;
 
  ST7735_FillScreen(ST7735_BLACK);
  ST7735_FillRectangle(0, 0, 160-1, 12, ST7735_BLUE);
@@ -194,10 +193,8 @@ uint8_t i;
 	 itoa(volt,buf,10);
 	 ST7735_FillRectangle(110, 8*STR_H, 49, STR_H, ST7735_BLACK);
 	 ST7735_DrawString(110, 8*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
-
-
 	 HAL_Delay(50);
-//     HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
+
   }
 
 }
@@ -265,6 +262,7 @@ uint8_t i,n=20, led=0;
 }
 
 // Тест встроенных часов
+// кажется что то не вопрядке с датой
 char *_time_=__TIME__;
 char *_date_=__DATE__;
 
@@ -350,7 +348,6 @@ void test_ds18b20(){
 
 	 while (1)
 	  {
-
 			ds18b20_MeasureTemperCmd(SKIP_ROM, 0);
 			for(i=0;i<8;i++){
 			HAL_Delay(100);
@@ -378,6 +375,7 @@ void test_ds18b20(){
 }
 
 // Сканирование шины i2c
+// Вверсии 1.5 при всех устнановленых компонентах должно находиться 5 устройств
 void scan_i2c(){
 	 uint8_t n=1,i,ret;
 
@@ -418,7 +416,7 @@ void scan_i2c(){
 	  }
 }
 
-// тест датчика дальности VL53L0x
+// Тест датчика дальности VL53L0x
 // Uncomment this line to use long range mode. This
 // increases the sensitivity of the sensor and extends its
 // potential range, but increases the likelihood of getting
@@ -718,7 +716,7 @@ void test_SD(void){
 	  }
 
 }
-
+// Тест беспроводного чипа nrf24 (просто чтение различных регистров)
 void test_nrf24(void){
 
 	uint8_t buf1[20]={0};
@@ -774,7 +772,7 @@ void test_nrf24(void){
 
 }
 
-
+// Тест шагового двигателя с помощью перемнного резистора можно задавать скорость.
 void test_Stepper(void){
      uint8_t i;
 	 ST7735_FillScreen(ST7735_BLACK);
@@ -840,8 +838,8 @@ void test_Stepper(void){
 	  }
 
 }
-// тестирование SPI flash памяти которая установлена на плате версии 1.5
-// Чип w25q32 (4 мегабайт)
+// Тестирование SPI flash памяти которая установлена на плате версии 1.5
+// Чип w25q32 (4 мегабайт), тип (объем) памяти определяется, делается скоросной тест
 const char *typeChip[10]={"W25Q10",
 						  "W25Q20",
 						  "W25Q40",
@@ -917,7 +915,8 @@ void test_SPI_flash(void)
 	  }
 
 }
-
+// Тест ЦАП mcp4725, генерация пилообразного напряжения на выходе.
+// Для визуального контроля (светодиод белого цвета будет плавно увеличивать яркость) не забыть поставить перемычку 1-2 в разъеме H4
 void test_mcp4725(void){
 	ST7735_FillScreen(ST7735_BLACK);
 	ST7735_FillRectangle(0, 0, 160-1, 12, ST7735_BLUE);
@@ -962,6 +961,8 @@ void test_mcp4725(void){
 }
 
 // Тест флаш памяти на интрефейсе I2C
+// Тип чипа определять не получится, просто проверяетя запись строки и ее чтение.
+// также проводится определение скорости чтения и записи
 char *HAL_Return[4]={"OK","ERROR","BUSY","TIMEOUT"};  // Расшифровка кодов возврата hal i2c
 void test_at24c128(void){
 
