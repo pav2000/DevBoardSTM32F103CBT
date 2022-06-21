@@ -46,9 +46,9 @@ extern "C" {
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
 #define HARDWARE "1.50"     // Версия платы (обязательно указывать)
-#define VERSION  "1.43"     // Версия тестовой программы
+#define VERSION  "1.44"     // Версия тестовой программы
 #define STR_H           10  // Высота строки
-#define NUM_MENU_MAIN   10  // Число пунктов основного меню
+#define NUM_MENU_MAIN   11  // Число пунктов основного меню
 #define NUM_MENU_I2C    7   // Число пунктов i2c меню
 typedef enum {
   mMain,

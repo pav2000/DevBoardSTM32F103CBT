@@ -71,7 +71,8 @@ const char *menu_main_text[NUM_MENU_MAIN]={"0.Test TFT st7735",
 										   "6.Test motor&ACS70331",
 										   "7.Test SD card",
 										   "8.Test nrf24l01",
-										   "9.Test SPI flash" };
+										   "9.Test SPI flash",
+										   "a.Test fake stm chip"};
 
 uint8_t menu_main = 0;
 uint8_t menu_i2c = 0;
@@ -246,6 +247,7 @@ uint8_t old_menu = menu_main;  // Старая позиция меню
     		case 7: test_SD();start_screen(); break;
     		case 8: test_nrf24();start_screen(); break;
     		case 9: test_SPI_flash();start_screen(); break;
+    		case 10: test_fake_stm32();start_screen(); break;
       		default: break;
 
     	}
@@ -271,11 +273,11 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE|RCC_OSCILLATORTYPE_LSE;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI|RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
-  RCC_OscInitStruct.LSEState = RCC_LSE_ON;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+  RCC_OscInitStruct.LSIState = RCC_LSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
@@ -297,7 +299,7 @@ void SystemClock_Config(void)
     Error_Handler();
   }
   PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC|RCC_PERIPHCLK_ADC;
-  PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
+  PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
   PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV6;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {

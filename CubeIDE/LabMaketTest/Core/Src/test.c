@@ -29,6 +29,7 @@ void test_Stepper(void);
 void test_SPI_flash(void);
 void test_mcp4725(void);
 void test_at24c128(void);
+void test_fake_stm32(void);
 
 extern void setDateTime(void);
 extern char * my_ftoa(double f, char * buf, int precision);
@@ -1017,3 +1018,40 @@ ST7735_DrawString(0, 10*STR_H-2, buf, Font_7x10, ST7735_RED, ST7735_BLACK);
 	  }
 }
 
+// Определение подлинности stm32
+void test_fake_stm32(void){
+
+	ST7735_FillScreen(ST7735_BLACK);
+	ST7735_FillRectangle(0, 0, 160-1, 12, ST7735_BLUE);
+	ST7735_DrawString(0, 1, "Test fake chip stm32", Font_7x10, ST7735_YELLOW, ST7735_BLUE);
+
+    ST7735_DrawString(0, 118, "Exit - press encoder", Font_7x10, ST7735_YELLOW, ST7735_BLACK);
+
+
+//sprintf(buf,"I2C address: 0x%02x",AT24_DEV_ADDR); // Адрес памяти
+//ST7735_DrawString(0, 1*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+
+// test
+strcpy(buf,"Device ID:"); strcat(buf,uint16ToHex(HAL_GetDEVID()));
+ST7735_DrawString(0, 1*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+strcpy(buf,"Revision ID:"); strcat(buf,uint16ToHex(HAL_GetREVID()));
+ST7735_DrawString(0, 2*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+strcpy(buf,"JDEC:"); strcat(buf,get_Manufacturer());
+ST7735_DrawString(0, 3*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+
+strcpy(buf,"Manufacturer:"); strcat(buf,get_coreID());
+ST7735_DrawString(0, 4*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+
+strcpy(buf,"Core:"); strcat(buf,cpuid());
+ST7735_DrawString(0, 5*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+
+ST7735_DrawString(0, 7*STR_H, "ROM table:", Font_7x10, ST7735_YELLOW, ST7735_BLACK);
+ST7735_DrawString(0, 8*STR_H, get_romtable(), Font_7x10, ST7735_WHITE, ST7735_BLACK);
+
+
+    while (1)
+	  {
+		 HAL_Delay(20);
+		 if (HAL_GPIO_ReadPin(ENC_BTN_GPIO_Port, ENC_BTN_Pin) == 1)  return;  // выход по кнопке энкодера
+	  }
+}

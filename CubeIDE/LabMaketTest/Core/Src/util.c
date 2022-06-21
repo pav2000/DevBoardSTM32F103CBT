@@ -1,6 +1,9 @@
 #include "main.h"
 #include <stdio.h>
 
+#define lowByte(a)        *((unsigned char *)&a)
+#define highByte(a)       *(((unsigned char *)&a) + 1)
+
 extern void scan_i2c(void);
 extern void test_VL53L0x(void);
 extern void test_max30102(void);
@@ -32,6 +35,9 @@ const char *menu_i2c_text[NUM_MENU_MAIN]={"1.Scan I2C bus",
 										  "5.Test MCP4725A (0x60)",
 										  "6.Test AT24C128 (0x50)",
 							              "7.Exit main menu" };
+
+const char codeHex[]={"0123456789abcdef"};
+char _bufTemp[64];
 
 // Стартовый экран
 void start_screen(void){
@@ -140,7 +146,18 @@ uint32_t ADC_Result(ADC_HandleTypeDef *hadc, uint32_t ch){
        return adcResult;
 }
 
-
+// uint16_t в текстовую строку вида 0xf50e
+char* uint16ToHex(uint16_t f)
+{
+	_bufTemp[0]='0';
+	_bufTemp[1]='x';
+	_bufTemp[2]=codeHex[0x0f & (unsigned char)(highByte(f)>>4)];
+	_bufTemp[3]=codeHex[0x0f & (unsigned char)(highByte(f))];
+	_bufTemp[4]=codeHex[0x0f & (unsigned char)(lowByte(f)>>4)];
+	_bufTemp[5]=codeHex[0x0f & (unsigned char)(lowByte(f))];
+	_bufTemp[6]=0; // Конец строки
+	return _bufTemp;
+}
 // флоат в сроку
 #define MAX_PRECISION	(10)
 static const double rounders[MAX_PRECISION + 1] =
@@ -322,4 +339,163 @@ void SetRTC(void)
 }
 */
 
+// Работа с железом чипа (определение чипа) =========================================================
+// Определение значения DBGMCU_IDCODE
+/*Table: DBGMCU_IDCODES (https://mecrisp-stellaris-folkdoc.sourceforge.io/bluepill-diagnostics-v1.6.html)
+*================= ============== ============== ============== ================= ============== ==================== =====
+*Device            CPU-ID         RevID          Flash (KB)     2nd 64KB Hidden ? Ram (KB)       Manufacturer         *
+*================= ============== ============== ============== ================= ============== ==================== =====
+*STM32F103C8T6     0x410          0x2003         2x 64          YES               20             STMicroelectronics   Y
+*STM32F103RBT6     0x410 ?        ?              128            N/A               20             STMicroelectronics   Y
+*CKS32F103C8T6     0x410          0x2003         64             N/A               20             China Key System     N
+*APM32F103CBT6     0x410          0x2003         ?              ?                 ?              Apex Micro           N
+*GD32F130C8        0x410          0x1303         64             ?                 8              Gigadevice           ?
+*GD32F150C8        0x410          0x1303         64             ?                 8              Gigadevice           ?
+*STM32F103VET6     0x414          0x1001         512            N/A               64             STMicroelectronics   Y
+*GD32F103VE        0x414          0x1309         512            N/A               64             Gigadevice           ?
+*GD32F103VK        0x430          0x1309         3072           N/A               96             Gigadevice           ?
+*GD32F103C8T6      0x436 ?        0x1038 ?       ?              ?                 ?              Gigadevice           ?
+*================= ============== ============== ============== ================= ============== ==================== =====
+*/
+uint32_t get_DBGMCU_IDCODE(void){
+	return ((DBGMCU->IDCODE));
+}
+
+// Определение значения производителя чипа через JDEC Codes
+// https://www.blaatschaap.be/some-side-notes/
+// https://mecrisp-stellaris-folkdoc.sourceforge.io/bluepill-diagnostics-v1.6.html
+char* get_Manufacturer(void){
+	int * pid = (int*)(0xE00FFFE0);
+//	bool used = pid[2] & 8;
+	uint8_t identity_code = ((pid[1] & 0xf0) >> 4) | ((pid[2] & 0x7) << 4);
+	uint8_t continuation_code = (*(int*)(0xE00FFFD0));
+	sprintf(_bufTemp, "0x%02x 0x%02x",identity_code,continuation_code);
+	if ((identity_code==0x20)&&(continuation_code==0x00)) strcat(_bufTemp," (STM)"); else
+    if ((identity_code==0xC8)&&(continuation_code==0x07)) strcat(_bufTemp," (GigaDevice)"); else
+    if ((identity_code==0x51)&&(continuation_code==0x07)) strcat(_bufTemp," (GigaDevice (Beijing))"); else
+    if ((identity_code==0x55)&&(continuation_code==0x05)) strcat(_bufTemp," (HK32)"); else
+    if ((identity_code==0x3b)&&(continuation_code==0x04)) strcat(_bufTemp," (CS32 or APM32)"); else
+   	strcat(_bufTemp,"Unknow");
+    return _bufTemp;
+
+}
+
+// Чтение ROMTABLE
+// https://github.com/a-v-s/ucdev/tree/master/demos/cortex_romtable/stm32f1
+#include "arm_cpuid/arm_cpuid.h"
+char* parse_romtable(void) {
+
+	intptr_t ROMTABLE = (intptr_t) (0xE00FF000);
+	romtable_id_t *rid = (romtable_id_t*) (ROMTABLE | 0xFD0);
+	romtable_pid_t romtable_pid = extract_romtable_pid(rid);
+
+	char *prob = "Unknown";
+
+	if (romtable_pid.jep106_used) {
+		if (romtable_pid.identity_code == 32
+				&& romtable_pid.continuation_code == 0) {
+			prob = "STM32";
+		}
+		if (romtable_pid.identity_code == 81
+				&& romtable_pid.continuation_code == 7) {
+			prob = "GD32";
+		}
+		if (romtable_pid.identity_code == 59
+				&& romtable_pid.continuation_code == 4) {
+			// APM or CS
+			cortex_m_romtable_t *rom = (cortex_m_romtable_t*) (ROMTABLE);
+			if (rom->etm & 1) {
+				prob = "CS32";
+			} else {
+				prob = "APM32";
+			}
+		}
+	} else {
+		// JEP106 not used. Legacy ASCII values are used. This should not be used
+		// on new products. And this note was written in the ADI v5 specs.
+		// The Only value I've been able to find is 0x41 for ARM.
+
+		// The identity/contiuation code are not filled acoording the JEP106
+		// According to speds, this is the legacy idenitification where
+		// the Identity Code contains an ASCII value. On the HK32 we read
+		// JEP106 = false / Identity = 0x55 / Continuation = 5
+		// 0x55 corresponds with 'U'. This looks like this could be an ASCII Identifier.
+		// However, if ASCII IDs are used, the expected Continuation would be 0, as
+		// this field is "reserved, read as zero" when legacy ASCII IDs are used.
+
+		// Even though these values are violating the specs, we can use
+		// JEP106 = false, ID = 0x55, Cont = 5 to detect HK32.
+
+		if (romtable_pid.identity_code == 0x55
+				&& romtable_pid.continuation_code == 5) prob = "HK32";
+	}
+
+	sprintf(_bufTemp, "%s %s V:%1d CONT:0x%02x ID:0x%02x PART:0x%04x REV:0x%02x ",(char*) prob,
+				(char*)cpuid(), romtable_pid.jep106_used, romtable_pid.continuation_code,
+				romtable_pid.identity_code, romtable_pid.partno,
+				romtable_pid.revision);
+	return _bufTemp;
+
+}
+
+char* get_coreID(void) {
+	intptr_t ROMTABLE = (intptr_t) (0xE00FF000);
+	romtable_id_t *rid = (romtable_id_t*) (ROMTABLE | 0xFD0);
+	romtable_pid_t romtable_pid = extract_romtable_pid(rid);
+
+	char *prob = "Unknown";
+
+	if (romtable_pid.jep106_used) {
+		if (romtable_pid.identity_code == 32
+				&& romtable_pid.continuation_code == 0) {
+			prob = "STM32";
+		}
+		if (romtable_pid.identity_code == 81
+				&& romtable_pid.continuation_code == 7) {
+			prob = "GD32";
+		}
+		if (romtable_pid.identity_code == 59
+				&& romtable_pid.continuation_code == 4) {
+			// APM or CS
+			cortex_m_romtable_t *rom = (cortex_m_romtable_t*) (ROMTABLE);
+			if (rom->etm & 1) {
+				prob = "CS32";
+			} else {
+				prob = "APM32";
+			}
+		}
+	} else {
+		// JEP106 not used. Legacy ASCII values are used. This should not be used
+		// on new products. And this note was written in the ADI v5 specs.
+		// The Only value I've been able to find is 0x41 for ARM.
+
+		// The identity/contiuation code are not filled acoording the JEP106
+		// According to speds, this is the legacy idenitification where
+		// the Identity Code contains an ASCII value. On the HK32 we read
+		// JEP106 = false / Identity = 0x55 / Continuation = 5
+		// 0x55 corresponds with 'U'. This looks like this could be an ASCII Identifier.
+		// However, if ASCII IDs are used, the expected Continuation would be 0, as
+		// this field is "reserved, read as zero" when legacy ASCII IDs are used.
+
+		// Even though these values are violating the specs, we can use
+		// JEP106 = false, ID = 0x55, Cont = 5 to detect HK32.
+
+		if (romtable_pid.identity_code == 0x55
+				&& romtable_pid.continuation_code == 5) prob = "HK32";
+	}
+return prob;
+}
+
+char* get_romtable(void) {
+	intptr_t ROMTABLE = (intptr_t) (0xE00FF000);
+	romtable_id_t *rid = (romtable_id_t*) (ROMTABLE | 0xFD0);
+	romtable_pid_t romtable_pid = extract_romtable_pid(rid);
+
+	sprintf(_bufTemp, "V:%1d CONT:0x%02x ID:0x%02x PART:0x%04x REV:0x%02x ",
+				romtable_pid.jep106_used, romtable_pid.continuation_code,
+				romtable_pid.identity_code, romtable_pid.partno,
+				romtable_pid.revision);
+	return _bufTemp;
+
+}
 

@@ -259,6 +259,11 @@
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+/* USER CODE END PFP */
+
+/* Private user code ---------------------------------------------------------*/
+/* USER CODE BEGIN 0 */
 volatile uint8_t FatFsCnt = 0;
 volatile uint8_t Timer1, Timer2;
 
