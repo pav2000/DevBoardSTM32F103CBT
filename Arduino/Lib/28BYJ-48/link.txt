@@ -1,0 +1,22 @@
+Полезные сылки: <br>
+https://cookierobotics.com/042/
+https://3d-diy.ru/wiki/arduino-mechanics/stepper-motor-28BYJ-48/<br>
+https://3drob.ru/stati/pro_arduino/mehanika_dlya_arduino/shagovyi_dvigatel_28byj_48<br>
+https://portal-pk.ru/news/250-podklyuchaem-k-arduino-shagovyi-dvigatel-28byj-48-s-pomoshchyu.html<br>
+https://arduinomaster.ru/motor-dvigatel-privod/shagovye-dvigateli-i-motory-arduino/<br>
+https://www.youtube.com/watch?v=lA36Rf73q5c<br>
+<br>
+Различный крепеж:<br>
+https://cults3d.com/en/3d-model/various/minimalistic-28byj-48-motor-bracket<br>
+https://mito3d.com/en/3dmodels/printdetails/design/1656246<br>
+https://mito3d.com/en/3dmodels/printdetails/design/2374064<br>
+https://mito3d.com/en/3dmodels/printdetails/design/2447157<br>
+
+Концевые выключатели:<br>
+https://dronebotworkshop.com/stepper-motor-hall-effect/<br>
+https://stepik.org/lesson/104663/step/2?unit=79221<br>
+https://www.youtube.com/watch?v=u7kX6OQ8AA4<br>
+<br>
+<br>
+
+
