@@ -1,0 +1,25 @@
+Полезные ссылки:
+https://domoticzfaq.ru/as5600-arduino-i2c/
+https://morioh.com/p/2ad0790f8408
+https://curiousscientist.tech/blog/as5600-magnetic-position-encoder
+https://curiousscientist.tech/blog/as5600-magnetic-encoder-a-practical-example
+https://www.instructables.com/AS5600-Magnetic-Angle-Encoder/
+https://forum.arduino.cc/t/as5600-magnetic-rotary-position-sensor-setup/623133
+https://hallroad.org/as5600-magnetic-encoder-sensor-module-in-pakistan.html
+
+Видео (можно подсмотреть конструкции крепления датчика):
+https://www.youtube.com/watch?v=0FQf7orxUDI
+https://www.youtube.com/watch?v=Q3g-csQo0dQ
+https://www.youtube.com/watch?v=IXaf57uP2Rk
+https://www.youtube.com/watch?v=Dwc4hFgNP5I
+https://www.youtube.com/watch?v=302vflf-56A
+https://www.youtube.com/watch?v=kY0ESMXjuDY
+https://www.youtube.com/watch?v=8DEV3hZvOI8
+https://www.youtube.com/watch?v=IXaf57uP2Rk&list=RDCMUC2Oa6OcNZZPaWQqq88xDmeQ&index=1
+https://www.youtube.com/watch?v=sBKdjBgjZ6w
+
+
+мультиплексор
+https://zizibot.ru/articles/electronics/tca9548a/
+
+
