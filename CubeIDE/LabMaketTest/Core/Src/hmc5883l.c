@@ -3,6 +3,10 @@
 
 extern I2C_HandleTypeDef I2C;
 
+	float mgPerDigit;
+	Vector v;
+	int xOffset, yOffset;
+
 Vector HMC5883L_readRaw(void)
 {
     v.XAxis = HMC5883L_readRegister16(HMC5883L_REG_OUT_X_M) - xOffset;

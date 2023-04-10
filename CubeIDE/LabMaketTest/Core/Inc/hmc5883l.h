@@ -100,9 +100,9 @@ typedef struct
 
 
 
-	float mgPerDigit;
-	Vector v;
-	int xOffset, yOffset;
+//	float mgPerDigit;
+//	Vector v;
+//	int xOffset, yOffset;
 
 	void HMC5883L_writeRegister8(uint8_t reg, uint8_t value);
 	uint8_t HMC5883L_readRegister8(uint8_t reg);
