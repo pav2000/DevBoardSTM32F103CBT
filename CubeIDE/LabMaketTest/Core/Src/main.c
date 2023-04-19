@@ -196,7 +196,6 @@ uint8_t old_menu = menu_main;  // Старая позиция меню
 	  HAL_Delay(20);
   }
 // test_VL53L0x();
-//  HAL_Delay(3000);
   HAL_ADCEx_Calibration_Start(&hadc1);  // Калибровка ацп
   /* USER CODE END 2 */
 

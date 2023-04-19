@@ -432,9 +432,9 @@ void scan_i2c(){
 #define HIGH_ACCURACY
 //#define LONG_RANGE
 
-VL53L0X _VL53L0X;
 
 void test_VL53L0x(void){
+	VL53L0X _VL53L0X;
 	 ST7735_FillScreen(ST7735_BLACK);
 	 ST7735_FillRectangle(0, 0, 160-1, 12, ST7735_BLUE);
 	 ST7735_DrawString(0, 1, "Test VL53L01 I2C1", Font_7x10, ST7735_YELLOW, ST7735_BLUE);
@@ -510,7 +510,7 @@ void test_VL53L0x(void){
 				ST7735_DrawString(0, 6*STR_H, buf, Font_7x10, ST7735_RED, ST7735_BLACK);
 			 }
 
-			 if (HAL_GPIO_ReadPin(ENC_BTN_GPIO_Port, ENC_BTN_Pin) == 1)  return;  // выход по кнопке энкодера
+			 if (HAL_GPIO_ReadPin(ENC_BTN_GPIO_Port, ENC_BTN_Pin) == 1) { stopContinuous(&_VL53L0X); return;}// выход по кнопке энкодера
 			  HAL_Delay(100);
 		  }
 
