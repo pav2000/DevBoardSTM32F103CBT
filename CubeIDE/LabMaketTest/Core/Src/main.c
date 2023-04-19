@@ -86,9 +86,9 @@ static void MX_DMA_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_RTC_Init(void);
-static void MX_I2C1_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM2_Init(void);
+static void MX_I2C1_Init(void);
 /* USER CODE BEGIN PFP */
 extern void start_screen(void);
 extern void beep(uint16_t t);
@@ -173,10 +173,10 @@ uint8_t old_menu = menu_main;  // Старая позиция меню
   MX_SPI1_Init();
   MX_ADC1_Init();
   MX_RTC_Init();
-  MX_I2C1_Init();
   MX_FATFS_Init();
   MX_TIM1_Init();
   MX_TIM2_Init();
+  MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
 
   ST7735_Init();          // Не забываем в кубе настроить DMA
@@ -193,8 +193,9 @@ uint8_t old_menu = menu_main;  // Старая позиция меню
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2); // Включить ШИМ на подсветку дисплея
   for (uint8_t i=0;i<100;i++){
 	  ST7735_Backlight(i);                  // Установить ярокость
-	  HAL_Delay(50);
+	  HAL_Delay(20);
   }
+ test_VL53L0x();
 //  HAL_Delay(3000);
   HAL_ADCEx_Calibration_Start(&hadc1);  // Калибровка ацп
   /* USER CODE END 2 */

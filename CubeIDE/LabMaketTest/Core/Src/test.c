@@ -424,64 +424,96 @@ void scan_i2c(){
 // an inaccurate reading because of reflections from objects
 // other than the intended target. It works best in dark
 // conditions.
-//#define LONG_RANGE
-
 // Uncomment ONE of these two lines to get
 // - higher speed at the cost of lower accuracy OR
 // - higher accuracy at the cost of lower speed
 
 //#define HIGH_SPEED
 #define HIGH_ACCURACY
+//#define LONG_RANGE
 
-struct VL53L0X myTOFsensor = {.io_2v8 = true, .address = 0b0101001, .io_timeout = 500, .did_timeout = false};
-// Адрес 0x29
+VL53L0X _VL53L0X;
+
 void test_VL53L0x(void){
-
 	 ST7735_FillScreen(ST7735_BLACK);
 	 ST7735_FillRectangle(0, 0, 160-1, 12, ST7735_BLUE);
 	 ST7735_DrawString(0, 1, "Test VL53L01 I2C1", Font_7x10, ST7735_YELLOW, ST7735_BLUE);
 
      ST7735_DrawString(0, 118, "Exit - press encoder", Font_7x10, ST7735_YELLOW, ST7735_BLACK);
 
-     sprintf(buf,"I2C address: 0x%0x",myTOFsensor.address); // Адрес датчика
-     ST7735_DrawString(0, 1*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
-
-     // Инициализация датчика
-     ST7735_DrawString(0, 2*STR_H, "VL53L0X_init:", Font_7x10, ST7735_WHITE, ST7735_BLACK);
- 	if( VL53L0X_init(&myTOFsensor) ){
- 		ST7735_DrawString(99, 2*STR_H, "success", Font_7x10, ST7735_YELLOW, ST7735_BLACK);
- 	}else{
- 		ST7735_DrawString(99, 2*STR_H, "fails", Font_7x10, ST7735_RED, ST7735_BLACK);
-  	}
-
-#ifdef LONG_RANGE
-	// lower the return signal rate limit (default is 0.25 MCPS)
-	VL53L0X_setSignalRateLimit(&myTOFsensor, 0.1);
-	// increase laser pulse periods (defaults are 14 and 10 PCLKs)
-	VL53L0X_setVcselPulsePeriod(&myTOFsensor, VcselPeriodPreRange, 18);
-	VL53L0X_setVcselPulsePeriod(&myTOFsensor, VcselPeriodFinalRange, 14);
-#endif
-#ifdef HIGH_SPEED
-	// reduce timing budget to 20 ms (default is about 33 ms)
-	VL53L0X_setMeasurementTimingBudget(&myTOFsensor, 20000);
-	 ST7735_DrawString(0, 3*STR_H, "Step1", Font_7x10, ST7735_WHITE, ST7735_BLACK);
-#else //HIGH_ACCURACY
-	// increase timing budget to 200 ms
-	VL53L0X_setMeasurementTimingBudget(&myTOFsensor, 200000);
-#endif
-	VL53L0X_startContinuous(&myTOFsensor, 0);
-
-     while (1)
+	  setup_VL53L0X(&_VL53L0X); //Set up the VL53L0X struct with default address and timeout status.
+	  if(!init(&_VL53L0X,true)) //attempt to initialise it with the necessary settings for normal operation. Returns 0 if fail, 1 if success.
 	  {
- 		uint16_t value = VL53L0X_readRangeContinuousMillimeters(&myTOFsensor);
- 		if(value<2000) sprintf(buf, " %d mm       ", value); else sprintf(buf, "out off range");
- 		ST7735_DrawString(0, 4*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
- 		 if ( VL53L0X_timeoutOccurred(&myTOFsensor) ) {
- 			ST7735_DrawString(0, 4*STR_H, "TIMEOUT", Font_7x10, ST7735_WHITE, ST7735_BLACK);
- 		 }
-		 if (HAL_GPIO_ReadPin(ENC_BTN_GPIO_Port, ENC_BTN_Pin) == 1)  return;  // выход по кнопке энкодера
+		  sprintf(buf,"Failed to init");
+		  ST7735_DrawString(0, 1*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+	  }
+	  else
+	  {
+		  sprintf(buf,"Successfully init");
+		  ST7735_DrawString(0, 1*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
 	  }
+   	    setTimeout(&_VL53L0X,500);
+	    setVcselPulsePeriod(&_VL53L0X,VcselPeriodPreRange, 18);    //  VcselPeriodPreRange:  12 to 18 (initialized default: 14)
+	    setVcselPulsePeriod(&_VL53L0X,VcselPeriodFinalRange, 14);  //  VcselPeriodFinalRange: 8 to 14 (initialized default: 10)
+	    startContinuous(&_VL53L0X,0);
+
+	  #if defined LONG_RANGE
+	    // lower the return signal rate limit (default is 0.25 MCPS)
+	     setSignalRateLimit(&_VL53L0X,0.1);
+	   #endif
+
+	  #if defined HIGH_SPEED
+	     // reduce timing budget to 20 ms (default is about 33 ms)
+	     setMeasurementTimingBudget(&_VL53L0X,20000);
+	  #elif defined HIGH_ACCURACY
+	            // increase timing budget to 200 ms
+	     setMeasurementTimingBudget(&_VL53L0X,200000);
+	  #endif
+
+	     startContinuous(&_VL53L0X,0); //start the sensor in continuous back-to-back reading mode.
+
+	     sprintf(buf,"I2C address: 0x%0x",_VL53L0X.address); // Адрес датчика
+	     ST7735_DrawString(0, 2*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+
+	     sprintf(buf,"ID model: 0x%0x",readReg16Bit(&_VL53L0X,IDENTIFICATION_MODEL_ID)); // модель
+	     ST7735_DrawString(0, 3*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+
+	     sprintf(buf,"ID revision: 0x%0x",readReg(&_VL53L0X, IDENTIFICATION_REVISION_ID)); // ревизия
+	     ST7735_DrawString(0, 4*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+
+	    // базовая шкала
+	     ST7735_DrawString(0, 7*STR_H, "Distance: ", Font_7x10, ST7735_WHITE, ST7735_BLACK);
+	     ST7735_DrawFastHLine(0,8*STR_H+6,320,ST7735_WHITE);
+	     for(int i=0;i<=5;i++)   { ST7735_DrawFastVLine(i*32,8*STR_H+6,4,ST7735_WHITE);  }
+	     ST7735_DrawFastVLine(159,8*STR_H+6,4,ST7735_WHITE);
+
+	    while (1)
+		  {
+	    	uint16_t value = readRangeContinuousMillimeters(&_VL53L0X);
+			if(value<2000){
+				sprintf(buf, " %d mm     ", value);
+				ST7735_DrawString(65, 7*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+				uint x= (160*value/500);
+				ST7735_FillRectangle(0, 8*STR_H+1, x, 4, ST7735_YELLOW);
+				ST7735_FillRectangle(x+1, 8*STR_H+1, 159, 4, ST7735_BLACK);
+			}
+			else {
+				sprintf(buf, "out of range");
+				ST7735_DrawString(65, 7*STR_H, buf, Font_7x10, ST7735_RED, ST7735_BLACK);
+				ST7735_FillRectangle(0, 8*STR_H+1, 160, 4, ST7735_YELLOW);
+			}
+
+
+			 if (timeoutOccurred(&_VL53L0X)) {
+				sprintf(buf,"TIMEOUT, err 0x%0x", _VL53L0X.last_status); // последня ошибка i2c
+				ST7735_DrawString(0, 6*STR_H, buf, Font_7x10, ST7735_RED, ST7735_BLACK);
+			 }
+
+			 if (HAL_GPIO_ReadPin(ENC_BTN_GPIO_Port, ENC_BTN_Pin) == 1)  return;  // выход по кнопке энкодера
+			  HAL_Delay(100);
+		  }
+
 }
 // тест датчика пульса  max30102
 // Адрес 0x57
