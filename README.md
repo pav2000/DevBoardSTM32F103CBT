@@ -49,7 +49,7 @@ Features of the development board:<br>
 - distance sensor bus i2c chip vl53l0x;<br>
 - magnetic field sensor bus i2c chip hmc5883l;<br>
 - pulse sensor bus i2c chip max30102;<br>
-- flash memory on the i2c at24c128 bus (32 KB);<br>
+- flash memory on the i2c at24c128 (or at24c64) bus (16/8 KB);<br>
 - DAC on i2c bus mcp4725 12bit, with connector and LED output;<br>
 - i2c connector for connecting external peripherals;<br>
 - flash memory on the spi w25q32 bus (4 MB);<br>
@@ -109,7 +109,7 @@ DataSheet - документация на отдельные микросхем�
 - датчик расстояния шина i2c чип vl53l0x;<br>
 - датчик магнитного поля шина i2c чип hmc5883l;<br>
 - датчик пульса шина i2c чип max30102;<br>
-- флеш память на шине i2c at24c128  (объем 32 кбайта);<br>
+- флеш память на шине i2c at24c128 (или at24c64) объем 16/8 кбайта;<br>
 - DAC на шине i2c mcp4725 12bit, с выходом на разъем и светодиод;<br>
 - разъем i2c для подключения внешней периферии;<br>
 - флеш память на шине spi w25q32  (объем 4 мбайта);<br>
