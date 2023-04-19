@@ -417,7 +417,7 @@ void scan_i2c(){
 	  }
 }
 
-// Тест датчика дальности VL53L0x
+// Тест датчика дальности VL53L0x Адрес 0x29
 // Uncomment this line to use long range mode. This
 // increases the sensitivity of the sensor and extends its
 // potential range, but increases the likelihood of getting
@@ -427,7 +427,7 @@ void scan_i2c(){
 // Uncomment ONE of these two lines to get
 // - higher speed at the cost of lower accuracy OR
 // - higher accuracy at the cost of lower speed
-
+// https://community.st.com/s/question/0D50X00009XkWI2SAN/ported-vl53l0x-pololu-code-to-stm32-always-times-out-cant-find-error
 //#define HIGH_SPEED
 #define HIGH_ACCURACY
 //#define LONG_RANGE
@@ -482,7 +482,7 @@ void test_VL53L0x(void){
 	     sprintf(buf,"ID revision: 0x%0x",readReg(&_VL53L0X, IDENTIFICATION_REVISION_ID)); // ревизия
 	     ST7735_DrawString(0, 4*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
-	    // базовая шкала
+	    // Базовая шкала
 	     ST7735_DrawString(0, 7*STR_H, "Distance: ", Font_7x10, ST7735_WHITE, ST7735_BLACK);
 	     ST7735_DrawFastHLine(0,8*STR_H+6,320,ST7735_WHITE);
 	     for(int i=0;i<=5;i++)   { ST7735_DrawFastVLine(i*32,8*STR_H+6,4,ST7735_WHITE);  }
@@ -1001,11 +1001,11 @@ void test_at24c128(void){
 
 	ST7735_FillScreen(ST7735_BLACK);
 	ST7735_FillRectangle(0, 0, 160-1, 12, ST7735_BLUE);
-	ST7735_DrawString(0, 1, "Test AT24C128 I2C1", Font_7x10, ST7735_YELLOW, ST7735_BLUE);
+	ST7735_DrawString(0, 1, "Test AT24C128/64 I2C1", Font_7x10, ST7735_YELLOW, ST7735_BLUE);
 
     ST7735_DrawString(0, 118, "Exit - press encoder", Font_7x10, ST7735_YELLOW, ST7735_BLACK);
 
-char testBuf[]="Test at24c128 flash.";
+char testBuf[]="Test at24c128/64 flash.";
 AT24_HandleTypeDef at24c128;
 
 AT24CXX_Init(&at24c128);
