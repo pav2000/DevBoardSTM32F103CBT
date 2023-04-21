@@ -1001,26 +1001,46 @@ void test_at24c128(void){
 
 	ST7735_FillScreen(ST7735_BLACK);
 	ST7735_FillRectangle(0, 0, 160-1, 12, ST7735_BLUE);
-	ST7735_DrawString(0, 1, "Test AT24C128/64 I2C1", Font_7x10, ST7735_YELLOW, ST7735_BLUE);
+	ST7735_DrawString(0, 1, "Test AT24Cxxx I2C1", Font_7x10, ST7735_YELLOW, ST7735_BLUE);
 
     ST7735_DrawString(0, 118, "Exit - press encoder", Font_7x10, ST7735_YELLOW, ST7735_BLACK);
 
-char testBuf[]="Test at24c128/64 flash.";
-AT24_HandleTypeDef at24c128;
+char testBuf[]="Test w/r at24cxx...";
 
-AT24CXX_Init(&at24c128);
-
-sprintf(buf,"I2C address: 0x%02x",AT24_DEV_ADDR); // Адрес памяти
+sprintf(buf,"I2C address: 0x%02x",_EEPROM_ADDRESS>>1); // Адрес памяти - убрать младший бит (типа операции)
 ST7735_DrawString(0, 1*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
-sprintf(buf,"Write chip: %s",HAL_Return[AT24CXX_Sequencial_Write(&at24c128, 0x00,(uint8_t*)testBuf, strlen(testBuf))]);
+sprintf(buf,"is Connected: %s",(at24_isConnected()?"Ok":"Err"));
+ST7735_DrawString(0, 2*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+
+sprintf(buf,"Erase Chip: %s",(at24_eraseChip()?"Ok":"Err"));
+ST7735_DrawString(0, 3*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+
+sprintf(buf,"Write on chip: %s",(at24_write(0, testBuf, sizeof(testBuf), 3)?"Ok":"Err"));
+ST7735_DrawString(0, 4*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+
+sprintf(buf,"> %s",testBuf);
+ST7735_DrawString(0, 5*STR_H, buf, Font_7x10, ST7735_RED, ST7735_BLACK);
+
+memset(testBuf,0x00,sizeof(testBuf));
+sprintf(buf,"Read of chip: %s",(at24_read(0, testBuf, sizeof(testBuf), 1)?"Ok":"Err"));
+ST7735_DrawString(0, 6*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+
+
+sprintf(buf,"< %s",testBuf);
+ST7735_DrawString(0, 7*STR_H, buf, Font_7x10, ST7735_YELLOW, ST7735_BLACK);
+
+/*
+sprintf(buf,"Write chip: %s",HAL_Return[AT24CXX_Sequencial_Write(&at24c128, 0x00,(uint8_t*)testBuf, sizeof(testBuf))]);
 ST7735_DrawString(0, 3*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
 sprintf(buf,"> %s",testBuf);
 ST7735_DrawString(0, 4*STR_H, buf, Font_7x10, ST7735_RED, ST7735_BLACK);
 
+memset(testBuf,0x00,sizeof(testBuf));
 sprintf(buf,"Read chip: %s",HAL_Return[AT24CXX_Sequencial_Read(&at24c128, 0x00,(uint8_t*)testBuf, strlen(testBuf))]);
 ST7735_DrawString(0, 5*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+AT24CXX_Write (0, 0,(uint8_t*)testBuf, sizeof(testBuf));
 
 sprintf(buf,"< %s",testBuf);
 ST7735_DrawString(0, 6*STR_H, buf, Font_7x10, ST7735_YELLOW, ST7735_BLACK);
@@ -1042,7 +1062,7 @@ AT24CXX_Sequencial_Read(&at24c128, 0x00, bufSector, (uint8_t)255);
 t=HAL_GetTick()-start;
 sprintf(buf,"Read 256 b msec: %d",t);
 ST7735_DrawString(0, 10*STR_H-2, buf, Font_7x10, ST7735_RED, ST7735_BLACK);
-
+*/
     while (1)
 	  {
 		 HAL_Delay(20);

@@ -1,96 +1,163 @@
-//#include "i2c.h"
 #include "main.h"
-//#include "user_board.h"
 #include "user_at24cxx.h"
 
-void AT24CXX_Init(AT24_HandleTypeDef * at24) {
-  at24 -> Lock = 0;
-  at24 -> TxFlag = 0;
-  at24 -> RxFlag = 0;
+#if (_EEPROM_USE_FREERTOS == 1)
+#include "cmsis_os.h"
+#define at24_delay(x)   osDelay(x)
+#else
+#define at24_delay(x)   HAL_Delay(x)
+#endif
+
+#if (_EEPROM_SIZE_KBIT == 1) || (_EEPROM_SIZE_KBIT == 2)
+#define _EEPROM_PSIZE     8
+#elif (_EEPROM_SIZE_KBIT == 4) || (_EEPROM_SIZE_KBIT == 8) || (_EEPROM_SIZE_KBIT == 16)
+#define _EEPROM_PSIZE     16
+#else
+#define _EEPROM_PSIZE     32
+#endif
+static uint8_t at24_lock = 0;
+
+/**
+  * @brief  Checks if memory device is ready for communication.
+  * @param  none
+  * @retval bool status
+  */
+bool at24_isConnected(void)
+{
+  #if (_EEPROM_USE_WP_PIN==1)
+  HAL_GPIO_WritePin(_EEPROM_WP_GPIO,_EEPROM_WP_PIN,GPIO_PIN_SET);
+  #endif
+  if (HAL_I2C_IsDeviceReady(&_EEPROM_I2C, _EEPROM_ADDRESS, 2, 100) == HAL_OK)
+    return true;
+  else
+    return false;
 }
 
 /**
- * Read specified address.
- * @param addr  address.
- * @param pData data pointer.
- */
-HAL_StatusTypeDef AT24CXX_Random_Read(AT24_HandleTypeDef * at24, uint16_t addr, uint8_t * pData) {
-  __HAL_LOCK(at24);
-  uint8_t page = addr / 0x100;
-  uint8_t actual_dev_addr = (AT24_DEV_ADDR << 1 | page << 1);
-  HAL_I2C_Mem_Read_DMA(&AT24_I2C_INTERFACE, actual_dev_addr, (addr & 0xFF), 0x01, pData, 0x01);
-  uint32_t tickStart = HAL_GetTick();
-  while(!at24 -> RxFlag) {
-    if ((HAL_GetTick() - tickStart) > AT24CXX_MAX_TIMEOUT_TICKS) {
-      break; // Oops!
+  * @brief  Write an amount of data in blocking mode to a specific memory address
+  * @param  address Internal memory address
+  * @param  data Pointer to data buffer
+  * @param  len Amount of data to be sent
+  * @param  timeout Timeout duration
+  * @retval bool status
+  */
+bool at24_write(uint16_t address, uint8_t *data, size_t len, uint32_t timeout)
+{
+  if (at24_lock == 1)
+    return false;
+  at24_lock = 1;
+  uint16_t w;
+  uint32_t startTime = HAL_GetTick();
+
+  #if	(_EEPROM_USE_WP_PIN==1)
+  HAL_GPIO_WritePin(_EEPROM_WP_GPIO, _EEPROM_WP_PIN,GPIO_PIN_RESET);
+  #endif
+
+  while (1)
+  {
+#if (_EEPROM_USE_IWDG == 1)
+		HAL_IWDG_Refresh(&_EEPROM_IWDG);
+#endif
+    w = _EEPROM_PSIZE - (address  % _EEPROM_PSIZE);
+    if (w > len)
+      w = len;
+    #if ((_EEPROM_SIZE_KBIT==1) || (_EEPROM_SIZE_KBIT==2))
+    if (HAL_I2C_Mem_Write(&_EEPROM_I2C, _EEPROM_ADDRESS, address, I2C_MEMADD_SIZE_8BIT, data, w, 100) == HAL_OK)
+    #elif (_EEPROM_SIZE_KBIT==4)
+    if (HAL_I2C_Mem_Write(&_EEPROM_I2C, _EEPROM_ADDRESS | ((address & 0x0100) >> 7), (address & 0xff), I2C_MEMADD_SIZE_8BIT, data, w, 100) == HAL_OK)
+    #elif (_EEPROM_SIZE_KBIT==8)
+    if (HAL_I2C_Mem_Write(&_EEPROM_I2C, _EEPROM_ADDRESS | ((address & 0x0300) >> 7), (address & 0xff), I2C_MEMADD_SIZE_8BIT, data, w, 100) == HAL_OK)
+    #elif (_EEPROM_SIZE_KBIT==16)
+    if (HAL_I2C_Mem_Write(&_EEPROM_I2C, _EEPROM_ADDRESS | ((address & 0x0700) >> 7), (address & 0xff), I2C_MEMADD_SIZE_8BIT, data, w, 100) == HAL_OK)
+    #else
+    if (HAL_I2C_Mem_Write(&_EEPROM_I2C, _EEPROM_ADDRESS, address, I2C_MEMADD_SIZE_16BIT, data, w, timeout) == HAL_OK)
+    #endif
+    {
+      at24_delay(10);
+      len -= w;
+      data += w;
+      address += w;
+      if (len == 0)
+      {
+        #if (_EEPROM_USE_WP_PIN==1)
+        HAL_GPIO_WritePin(_EEPROM_WP_GPIO, _EEPROM_WP_PIN, GPIO_PIN_SET);
+        #endif
+        at24_lock = 0;
+        return true;
+      }
+      if (HAL_GetTick() - startTime >= timeout)
+      {
+        at24_lock = 0;
+        return false;
+      }
+    }
+    else
+    {
+      #if (_EEPROM_USE_WP_PIN==1)
+      HAL_GPIO_WritePin(_EEPROM_WP_GPIO, _EEPROM_WP_PIN, GPIO_PIN_SET);
+      #endif
+      at24_lock = 0;
+      return false;
     }
   }
-  at24 -> RxFlag = 0x00;
-  __HAL_UNLOCK(at24);
-  return(HAL_OK);
 }
 
 /**
- * Sequencial read.
- * @param addr start address
- * @param pData     data
- * @param length    transfer length
- */
-HAL_StatusTypeDef AT24CXX_Sequencial_Read(AT24_HandleTypeDef * at24, uint16_t addr, uint8_t * pData, uint8_t length) {
-  __HAL_LOCK(at24);
-  uint8_t page = addr / 0x100;
-  uint8_t actual_dev_addr = (AT24_DEV_ADDR << 1 | page << 1);
-  HAL_I2C_Mem_Read_DMA(&AT24_I2C_INTERFACE, actual_dev_addr, (addr & 0xFF), 0x01, pData, length);
-  uint32_t tickStart = HAL_GetTick();
-  while(!at24 -> RxFlag) {
-    if ((HAL_GetTick() - tickStart) > AT24CXX_MAX_TIMEOUT_TICKS) {
-      break; // Oops!
-    }
+  * @brief  Read an amount of data in blocking mode to a specific memory address
+  * @param  address Internal memory address
+  * @param  data Pointer to data buffer
+  * @param  len Amount of data to be sent
+  * @param  timeout Timeout duration
+  * @retval bool status
+  */
+bool at24_read(uint16_t address, uint8_t *data, size_t len, uint32_t timeout)
+{
+#if (_EEPROM_USE_IWDG == 1)
+	HAL_IWDG_Refresh(&_EEPROM_IWDG);
+#endif
+  if (at24_lock == 1)
+    return false;
+  at24_lock = 1;
+  #if (_EEPROM_USE_WP_PIN==1)
+  HAL_GPIO_WritePin(_EEPROM_WP_GPIO, _EEPROM_WP_PIN, GPIO_PIN_SET);
+  #endif
+  #if ((_EEPROM_SIZE_KBIT==1) || (_EEPROM_SIZE_KBIT==2))
+  if (HAL_I2C_Mem_Read(&_EEPROM_I2C, _EEPROM_ADDRESS, address, I2C_MEMADD_SIZE_8BIT, data, len, 100) == HAL_OK)
+  #elif (_EEPROM_SIZE_KBIT == 4)
+  if (HAL_I2C_Mem_Read(&_EEPROM_I2C, _EEPROM_ADDRESS | ((address & 0x0100) >> 7), (address & 0xff), I2C_MEMADD_SIZE_8BIT, data, len, 100) == HAL_OK)
+  #elif (_EEPROM_SIZE_KBIT == 8)
+  if (HAL_I2C_Mem_Read(&_EEPROM_I2C, _EEPROM_ADDRESS | ((address & 0x0300) >> 7), (address & 0xff), I2C_MEMADD_SIZE_8BIT, data, len, 100) == HAL_OK)
+  #elif (_EEPROM_SIZE_KBIT==16)
+  if (HAL_I2C_Mem_Read(&_EEPROM_I2C, _EEPROM_ADDRESS | ((address & 0x0700) >> 7), (address & 0xff), I2C_MEMADD_SIZE_8BIT, data, len, 100) == HAL_OK)
+  #else
+  if (HAL_I2C_Mem_Read(&_EEPROM_I2C, _EEPROM_ADDRESS, address, I2C_MEMADD_SIZE_16BIT, data, len, timeout) == HAL_OK)
+  #endif
+  {
+    at24_lock = 0;
+    return true;
   }
-  at24 -> RxFlag = 0x00;
-  __HAL_UNLOCK(at24);
-  return(HAL_OK);
+  else
+  {
+    at24_lock = 0;
+    return false;
+  }
 }
 
 /**
- * Write to specified address.
- * @param addr  address
- * @param pData data
- */
-HAL_StatusTypeDef AT24CXX_Byte_Write(AT24_HandleTypeDef * at24, uint16_t addr, uint8_t * pData) {
-  __HAL_LOCK(at24);
-  uint8_t page = addr / 0x100;
-  uint8_t actual_dev_addr = (AT24_DEV_ADDR << 1 | page << 1);
-  HAL_I2C_Mem_Write_DMA(&AT24_I2C_INTERFACE, actual_dev_addr, (addr & 0xFF), 0x01, pData, 0x01);
-  uint32_t tickStart = HAL_GetTick();
-  while(!at24 -> TxFlag) {
-    if ((HAL_GetTick() - tickStart) > AT24CXX_MAX_TIMEOUT_TICKS) {
-      break; // Oops!
-    }
+  * @brief  Erase memory.
+  * @param  none
+  * @retval bool status
+  */
+bool at24_eraseChip(void)
+{
+  const uint8_t eraseData[32] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF\
+    , 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+  uint32_t bytes = 0;
+  while ( bytes < (_EEPROM_SIZE_KBIT * 128))
+  {
+    if (at24_write(bytes, (uint8_t*)eraseData, sizeof(eraseData), 100) == false)
+      return false;
+    bytes += sizeof(eraseData);
   }
-  at24 -> TxFlag = 0x00;
-  __HAL_UNLOCK(at24);
-  return(HAL_OK);
-}
-
-/**
- * Sequencial write.
- * @param addr   start address
- * @param pData  data
- * @param length length
- */
-HAL_StatusTypeDef AT24CXX_Sequencial_Write(AT24_HandleTypeDef * at24, uint16_t addr, uint8_t * pData, uint8_t length) {
-  __HAL_LOCK(at24);
-  uint8_t page = addr / 0x100;
-  uint8_t actual_dev_addr = (AT24_DEV_ADDR << 1 | page << 1);
-  HAL_I2C_Mem_Write_DMA(&AT24_I2C_INTERFACE, actual_dev_addr, (addr & 0xFF), 0x01, pData, length);
-  uint32_t tickStart = HAL_GetTick();
-  while(!at24 -> TxFlag) {
-    if ((HAL_GetTick() - tickStart) > AT24CXX_MAX_TIMEOUT_TICKS) {
-      break; // Oops!
-    }
-  }
-  at24 -> TxFlag = 0x00;
-  __HAL_UNLOCK(at24);
-  return(HAL_OK);
+  return true;
 }

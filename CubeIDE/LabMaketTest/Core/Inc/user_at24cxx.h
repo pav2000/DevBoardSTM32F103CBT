@@ -1,24 +1,81 @@
 #ifndef __USER_AT24CXX_H_
 #define __USER_AT24CXX_H_
 
+/*
+  Author:     Suman Kumar D.
+  WebSite:    https://github.com/sumancvb
+  Version:    1.0.0
+*/
+
+/********************************* Configuration Start *********************************/
 extern I2C_HandleTypeDef hi2c1;
-#define AT24_I2C_INTERFACE  hi2c1 //BOARD_AT24_I2C_INTERFACE // HAL I2C handler
-#define AT24_DEV_ADDR 0x50        // 8-bit with trailing 0
-#define AT24_SIZE 256             // Words
+#define		_EEPROM_SIZE_KBIT		64       /* 256K (32,768 x 8) */
+#define		_EEPROM_I2C		 		hi2c1
+#define		_EEPROM_USE_FREERTOS	0
+#define		_EEPROM_ADDRESS			0x50<<1
+#define		_EEPROM_USE_WP_PIN		0
+#define		_EEPROM_USE_IWDG		0
 
-#define AT24CXX_MAX_TIMEOUT_TICKS 1000
+/* The AT24CXX has a hardware data protection scheme that allows the
+user to write protect the whole memory when the WP pin is at VCC. */
 
-typedef struct {
-	HAL_LockTypeDef Lock;
-	uint8_t TxFlag;
-	uint8_t RxFlag;
-} AT24_HandleTypeDef;
+#if (_EEPROM_USE_WP_PIN == 1)
+#define		_EEPROM_WP_GPIO			WP_GPIO_Port
+#define		_EEPROM_WP_PIN			WP_Pin
+#endif
 
-void AT24CXX_Init(AT24_HandleTypeDef * at24);
-HAL_StatusTypeDef AT24CXX_Random_Read(AT24_HandleTypeDef * at24, uint16_t addr, uint8_t * pData);
-HAL_StatusTypeDef AT24CXX_Sequencial_Read(AT24_HandleTypeDef * at24, uint16_t addr, uint8_t * pData, uint8_t length);
+/* For watchdog timer refresh, required during erase operation */
+#if (_EEPROM_USE_IWDG == 1)
+#define		_EEPROM_IWDG			hiwdg
+#endif
 
-HAL_StatusTypeDef AT24CXX_Byte_Write(AT24_HandleTypeDef * at24, uint16_t addr, uint8_t * pData);
-HAL_StatusTypeDef AT24CXX_Sequencial_Write(AT24_HandleTypeDef * at24, uint16_t addr, uint8_t * pData, uint8_t length);
+/********************************* Configuration End *********************************/
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <stdbool.h>
+#include <stdint.h>
+#include <stddef.h>
+
+/**
+  * @brief  Checks if memory device is ready for communication.
+  * @param  none
+  * @retval bool
+  */
+bool at24_isConnected(void);
+
+/**
+  * @brief  Write an amount of data in blocking mode to a specific memory address
+  * @param  address Internal memory address
+  * @param  data Pointer to data buffer
+  * @param  len Amount of data to be sent
+  * @param  timeout Timeout duration
+  * @retval bool status
+  */
+bool at24_write(uint16_t address, uint8_t *data, size_t lenInBytes, uint32_t timeout);
+
+/**
+  * @brief  Read an amount of data in blocking mode to a specific memory address
+  * @param  address Internal memory address
+  * @param  data Pointer to data buffer
+  * @param  len Amount of data to be sent
+  * @param  timeout Timeout duration
+  * @retval bool status
+  */
+bool at24_read(uint16_t address, uint8_t *data, size_t lenInBytes, uint32_t timeout);
+
+/**
+  * @brief  Erase memory.
+  * @note   This requires time in seconds
+  * @param  none
+  * @retval bool status
+  */
+bool at24_eraseChip(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

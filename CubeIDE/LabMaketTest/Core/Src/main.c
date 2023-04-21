@@ -196,6 +196,7 @@ uint8_t old_menu = menu_main;  // Старая позиция меню
 	  HAL_Delay(20);
   }
 // test_VL53L0x();
+// test_at24c128();
   HAL_ADCEx_Calibration_Start(&hadc1);  // Калибровка ацп
   /* USER CODE END 2 */
 
@@ -368,7 +369,7 @@ static void MX_I2C1_Init(void)
 
   /* USER CODE END I2C1_Init 1 */
   hi2c1.Instance = I2C1;
-  hi2c1.Init.ClockSpeed = 100000;
+  hi2c1.Init.ClockSpeed = 400000;
   hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_2;
   hi2c1.Init.OwnAddress1 = 0;
   hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
