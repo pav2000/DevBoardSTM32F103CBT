@@ -1020,37 +1020,38 @@ ST7735_DrawString(0, 3*STR_H,"Erase chip . . ." , Font_7x10, ST7735_WHITE, ST773
 sprintf(buf,"Erase chip: %s",(at24_eraseChip()?"Ok":"Err"));
 ST7735_DrawString(0, 3*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
-sprintf(buf,"Write on chip: %s",(at24_write(0, (uint8_t *)testBuf, sizeof(testBuf), 3)?"Ok":"Err"));
+sprintf(buf,"Write on chip: %s",(at24_write(0, (uint8_t *)testBuf, sizeof(testBuf), 30)?"Ok":"Err"));
 ST7735_DrawString(0, 4*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
 sprintf(buf,"> %s",testBuf);
 ST7735_DrawString(0, 5*STR_H, buf, Font_7x10, ST7735_RED, ST7735_BLACK);
 
 memset(testBuf,0x00,sizeof(testBuf));
-sprintf(buf,"Read of chip: %s",(at24_read(0, (uint8_t *)testBuf, sizeof(testBuf), 1)?"Ok":"Err"));
+sprintf(buf,"Read of chip: %s",(at24_read(0, (uint8_t *)testBuf, sizeof(testBuf), 10)?"Ok":"Err"));
 ST7735_DrawString(0, 6*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
 
 sprintf(buf,"< %s",testBuf);
 ST7735_DrawString(0, 7*STR_H, buf, Font_7x10, ST7735_YELLOW, ST7735_BLACK);
 
+
 // Тест на скорость записи
 sprintf(buf,"Test write/read flash");
-ST7735_DrawString(0, 8*STR_H-1, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+ST7735_DrawString(0, 9*STR_H-1, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
 uint8_t bufSector[64]={55};
 uint start=HAL_GetTick();
-for(int i=0;i<10;i++) at24_write(i*64, bufSector, sizeof(bufSector), 5);
+for(int i=0;i<10;i++) at24_write(i*64, bufSector, sizeof(bufSector), 100);
 uint t=HAL_GetTick()-start;
 sprintf(buf,"Write 640 byte ms: %d",t);
-ST7735_DrawString(0, 9*STR_H-1, buf, Font_7x10, ST7735_RED, ST7735_BLACK);
+ST7735_DrawString(0, 10*STR_H-1, buf, Font_7x10, ST7735_GREEN, ST7735_BLACK);
 
 // Тест на скорость чтения
 start=HAL_GetTick();
-for(int i=0;i<10;i++) at24_read(i*64, bufSector, sizeof(bufSector), 1);
+for(int i=0;i<10;i++) at24_read(i*64, bufSector, sizeof(bufSector), 100);
 t=HAL_GetTick()-start;
 sprintf(buf,"Read 640 byte ms: %d",t);
-ST7735_DrawString(0, 10*STR_H-2, buf, Font_7x10, ST7735_RED, ST7735_BLACK);
+ST7735_DrawString(0, 11*STR_H-2, buf, Font_7x10, ST7735_GREEN, ST7735_BLACK);
 
     while (1)
 	  {
