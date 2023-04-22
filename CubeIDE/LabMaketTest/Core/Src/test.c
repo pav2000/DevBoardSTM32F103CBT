@@ -139,8 +139,6 @@ void test_TFT(void)
 // ST7735_FillScreen(ST7735_BLACK);
 // ST7735_DrawImage(16, 0, 128, 128, (uint16_t*) test_img_128x128);
 // ST7735_DrawImage(0, 0, 160, 128, (const unsigned char*) gImage_icon03);
-
-
 // HAL_Delay(2000);
 }
 
@@ -1013,7 +1011,8 @@ ST7735_DrawString(0, 1*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 sprintf(buf,"is Connected: %s",(at24_isConnected()?"Ok":"Err"));
 ST7735_DrawString(0, 2*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
-sprintf(buf,"Erase Chip: %s",(at24_eraseChip()?"Ok":"Err"));
+ST7735_DrawString(0, 3*STR_H,"Erase chip . . ." , Font_7x10, ST7735_WHITE, ST7735_BLACK);
+sprintf(buf,"Erase chip: %s",(at24_eraseChip()?"Ok":"Err"));
 ST7735_DrawString(0, 3*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
 sprintf(buf,"Write on chip: %s",(at24_write(0, testBuf, sizeof(testBuf), 3)?"Ok":"Err"));
@@ -1030,39 +1029,24 @@ ST7735_DrawString(0, 6*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 sprintf(buf,"< %s",testBuf);
 ST7735_DrawString(0, 7*STR_H, buf, Font_7x10, ST7735_YELLOW, ST7735_BLACK);
 
-/*
-sprintf(buf,"Write chip: %s",HAL_Return[AT24CXX_Sequencial_Write(&at24c128, 0x00,(uint8_t*)testBuf, sizeof(testBuf))]);
-ST7735_DrawString(0, 3*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
-
-sprintf(buf,"> %s",testBuf);
-ST7735_DrawString(0, 4*STR_H, buf, Font_7x10, ST7735_RED, ST7735_BLACK);
-
-memset(testBuf,0x00,sizeof(testBuf));
-sprintf(buf,"Read chip: %s",HAL_Return[AT24CXX_Sequencial_Read(&at24c128, 0x00,(uint8_t*)testBuf, strlen(testBuf))]);
-ST7735_DrawString(0, 5*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
-AT24CXX_Write (0, 0,(uint8_t*)testBuf, sizeof(testBuf));
-
-sprintf(buf,"< %s",testBuf);
-ST7735_DrawString(0, 6*STR_H, buf, Font_7x10, ST7735_YELLOW, ST7735_BLACK);
-
 // Тест на скорость записи
 sprintf(buf,"Test write/read flash");
 ST7735_DrawString(0, 8*STR_H-1, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
-uint8_t bufSector[256]={55};
+uint8_t bufSector[64]={55};
 uint start=HAL_GetTick();
-AT24CXX_Sequencial_Write(&at24c128, 0x00, bufSector, 255);
+for(int i=0;i<10;i++) at24_write(i*64, bufSector, sizeof(bufSector), 5);
 uint t=HAL_GetTick()-start;
-sprintf(buf,"Write 256 b msec: %d",t);
+sprintf(buf,"Write 640 b ms: %d",t);
 ST7735_DrawString(0, 9*STR_H-1, buf, Font_7x10, ST7735_RED, ST7735_BLACK);
 
 // Тест на скорость чтения
 start=HAL_GetTick();
-AT24CXX_Sequencial_Read(&at24c128, 0x00, bufSector, (uint8_t)255);
+for(int i=0;i<10;i++) at24_read(i*64, bufSector, sizeof(bufSector), 1);
 t=HAL_GetTick()-start;
-sprintf(buf,"Read 256 b msec: %d",t);
+sprintf(buf,"Read 640 b ms: %d",t);
 ST7735_DrawString(0, 10*STR_H-2, buf, Font_7x10, ST7735_RED, ST7735_BLACK);
-*/
+
     while (1)
 	  {
 		 HAL_Delay(20);

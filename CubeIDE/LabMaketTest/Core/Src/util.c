@@ -33,7 +33,7 @@ const char *menu_i2c_text[NUM_MENU_MAIN]={"1.Scan I2C bus",
 								          "3.Test max30102 (0x57)",
                                           "4.Test HMC5883L (0x1e)",
 										  "5.Test MCP4725A (0x60)",
-										  "6.Test AT24C128 (0x50)",
+										  "6.Test AT24Cxxx (0x50)",
 							              "7.Exit main menu" };
 
 const char codeHex[]={"0123456789abcdef"};
