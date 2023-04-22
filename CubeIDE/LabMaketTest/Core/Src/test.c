@@ -35,6 +35,11 @@ extern void setDateTime(void);
 extern char * my_ftoa(double f, char * buf, int precision);
 extern void beep_enc(void);
 extern void beep(uint16_t t);
+extern char* uint16ToHex(uint16_t f);
+extern char* get_Manufacturer(void);
+extern char* get_coreID(void);
+extern char* cpuid();
+extern char* get_romtable(void);
 
 extern I2C_HandleTypeDef hi2c1;
 extern uint32_t ADC_Result(ADC_HandleTypeDef *hadc, uint32_t ch);
@@ -1015,14 +1020,14 @@ ST7735_DrawString(0, 3*STR_H,"Erase chip . . ." , Font_7x10, ST7735_WHITE, ST773
 sprintf(buf,"Erase chip: %s",(at24_eraseChip()?"Ok":"Err"));
 ST7735_DrawString(0, 3*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
-sprintf(buf,"Write on chip: %s",(at24_write(0, testBuf, sizeof(testBuf), 3)?"Ok":"Err"));
+sprintf(buf,"Write on chip: %s",(at24_write(0, (uint8_t *)testBuf, sizeof(testBuf), 3)?"Ok":"Err"));
 ST7735_DrawString(0, 4*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
 sprintf(buf,"> %s",testBuf);
 ST7735_DrawString(0, 5*STR_H, buf, Font_7x10, ST7735_RED, ST7735_BLACK);
 
 memset(testBuf,0x00,sizeof(testBuf));
-sprintf(buf,"Read of chip: %s",(at24_read(0, testBuf, sizeof(testBuf), 1)?"Ok":"Err"));
+sprintf(buf,"Read of chip: %s",(at24_read(0, (uint8_t *)testBuf, sizeof(testBuf), 1)?"Ok":"Err"));
 ST7735_DrawString(0, 6*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
 
@@ -1037,14 +1042,14 @@ uint8_t bufSector[64]={55};
 uint start=HAL_GetTick();
 for(int i=0;i<10;i++) at24_write(i*64, bufSector, sizeof(bufSector), 5);
 uint t=HAL_GetTick()-start;
-sprintf(buf,"Write 640 b ms: %d",t);
+sprintf(buf,"Write 640 byte ms: %d",t);
 ST7735_DrawString(0, 9*STR_H-1, buf, Font_7x10, ST7735_RED, ST7735_BLACK);
 
 // Тест на скорость чтения
 start=HAL_GetTick();
 for(int i=0;i<10;i++) at24_read(i*64, bufSector, sizeof(bufSector), 1);
 t=HAL_GetTick()-start;
-sprintf(buf,"Read 640 b ms: %d",t);
+sprintf(buf,"Read 640 byte ms: %d",t);
 ST7735_DrawString(0, 10*STR_H-2, buf, Font_7x10, ST7735_RED, ST7735_BLACK);
 
     while (1)

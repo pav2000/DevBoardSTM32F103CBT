@@ -158,7 +158,7 @@ uint16_t MCP4725_getValue(MCP4725* _MCP4725)
   uint16_t value = MCP4725_readRegister(_MCP4725, MCP4725_READ_DAC_REG); //D11,D10,D9,D8,D7,D6,D5,D4, D3,D2,D1,D0,xx,xx,xx,xx        
 
   if (value != MCP4725_ERROR) return value >> 4;       //00,00,00,00,D11,D10,D9,D8,  D7,D6,D5,D4,D3,D2,D1,D0
-                              return value;            //collision on i2c bus
+  else                        return value;            //collision on i2c bus
 }
 
 /**************************************************************************/
@@ -173,7 +173,7 @@ float MCP4725_getVoltage(MCP4725* _MCP4725)
   float value = MCP4725_getValue(_MCP4725);
 
   if (value != MCP4725_ERROR) return value / _MCP4725->_bitsPerVolt;
-                              return value;
+  else                        return value;
 }
 
 /**************************************************************************/
@@ -191,7 +191,7 @@ uint16_t MCP4725_getStoredValue(MCP4725* _MCP4725)
   uint16_t value = MCP4725_readRegister(_MCP4725, MCP4725_READ_EEPROM); //xx,PD1,PD0,xx,D11,D10,D9,D8, D7,D6,D5,D4,D3,D2,D1,D0
 
   if (value != MCP4725_ERROR) return value & 0x0FFF;  //00,00,00,00,D11,D10,D9,D8,   D7,D6,D5,D4,D3,D2,D1,D0
-                              return value;           //collision on i2c bus
+  else                        return value;           //collision on i2c bus
 }
 
 /**************************************************************************/
@@ -206,7 +206,7 @@ float MCP4725_getStoredVoltage(MCP4725* _MCP4725)
   float value = MCP4725_getStoredValue(_MCP4725);
 
   if (value != MCP4725_ERROR) return value / _MCP4725->_bitsPerVolt;
-                              return value;
+  else                        return value;
 }
 
 /**************************************************************************/
@@ -342,7 +342,7 @@ uint8_t MCP4725_getEepromBusyFlag(MCP4725* _MCP4725)
   uint16_t value = MCP4725_readRegister(_MCP4725, MCP4725_READ_SETTINGS); //BSY,POR,xx,xx,xx,PD1,PD0,xx
 
   if (value != MCP4725_ERROR) return (value & 0x80)==0x80;		//1 - completed, 0 - incompleted
-                              return 0;										//collision on i2c bus
+  else                        return 0;										//collision on i2c bus
 }
 
 /**************************************************************************/

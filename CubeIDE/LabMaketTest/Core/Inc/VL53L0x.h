@@ -309,12 +309,6 @@ typedef struct __VL53L0X
 		writeBytes(handler, devAddr, regAddr, 4,(uint8_t*)towrite);
 		return true;
 	}
-	/*bool writeWords(I2C_HandleTypeDef *handler, uint8_t devAddr, uint8_t regAddr, uint8_t length, uint16_t* data) {
-		uint8_t status = 0;
-		uint8_t towrite[sizeof(*data)]
-		HAL_I2C_Mem_Write(handler, devAddr<<1, (uint16_t)regAddr,1,towrite,1);
-		return status == 0;
-	}*/
 
 
 #endif
