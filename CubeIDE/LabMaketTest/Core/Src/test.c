@@ -446,7 +446,7 @@ static  bool initVL53L0X=false;     // Инициализация чипа VL53L
 void test_VL53L0x(void){
 //	 VL53L0X _VL53L0X;
 	 ST7735_FillScreen(ST7735_BLACK);
-	 ST7735_FillRectangle(0, 0, 160-1, 12, ST7735_BLUE);
+	 ST7735_FillRectangle(0, 0, 160-1, 11, ST7735_BLUE);
 	 ST7735_DrawString(0, 1, "Test VL53L01 I2C1", Font_7x10, ST7735_YELLOW, ST7735_BLUE);
 
      ST7735_DrawString(0, 118, "Exit - press encoder", Font_7x10, ST7735_YELLOW, ST7735_BLACK);
@@ -465,12 +465,9 @@ void test_VL53L0x(void){
 	  else
 	  {
 		  sprintf(buf,"Successfully init");
-		  ST7735_DrawString(0, 1*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+		  ST7735_DrawString(0, 1*STR_H+1, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 	  }
 	 }
-//   	setTimeout(&_VL53L0X,500);
-//	    setVcselPulsePeriod(&_VL53L0X,VcselPeriodPreRange, 18);    //  VcselPeriodPreRange:  12 to 18 (initialized default: 14)
-//	    setVcselPulsePeriod(&_VL53L0X,VcselPeriodFinalRange, 14);  //  VcselPeriodFinalRange: 8 to 14 (initialized default: 10)
 
 	  #if defined LONG_RANGE
 	    // lower the return signal rate limit (default is 0.25 MCPS)
@@ -488,40 +485,47 @@ void test_VL53L0x(void){
 	     startContinuous(&_VL53L0X,0); //start the sensor in continuous back-to-back reading mode.
 
 	     sprintf(buf,"I2C address: 0x%0x",_VL53L0X.address); // Адрес датчика
-	     ST7735_DrawString(0, 2*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+	     ST7735_DrawString(0, 2*STR_H+1, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
 	     sprintf(buf,"ID model: 0x%0x",readReg16Bit(&_VL53L0X,IDENTIFICATION_MODEL_ID)); // модель
-	     ST7735_DrawString(0, 3*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+	     ST7735_DrawString(0, 3*STR_H+1, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
 	     sprintf(buf,"ID revision: 0x%0x",readReg(&_VL53L0X, IDENTIFICATION_REVISION_ID)); // ревизия
-	     ST7735_DrawString(0, 4*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+	     ST7735_DrawString(0, 4*STR_H+1, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
 	    // Базовая шкала
-	     ST7735_DrawString(0, 7*STR_H, "Distance: ", Font_7x10, ST7735_WHITE, ST7735_BLACK);
-	     ST7735_DrawFastHLine(0,8*STR_H+6,320,ST7735_WHITE);
+	     ST7735_DrawString(0, 7*STR_H, "Distance:", Font_7x10, ST7735_WHITE, ST7735_BLACK);
+	     ST7735_DrawFastHLine(0,8*STR_H+6,ST7735_HEIGHT-1,ST7735_WHITE);
 	     for(int i=0;i<=NUMSCALE;i++)   { ST7735_DrawFastVLine(i*POINTSCALE,8*STR_H+6,4,ST7735_WHITE);  }
-	     ST7735_DrawFastVLine(160-1,8*STR_H+6,4,ST7735_WHITE);
+	     ST7735_DrawFastVLine(ST7735_HEIGHT-1,8*STR_H+6,4,ST7735_WHITE);
 
+        bool outRange=false;
 	    while (1)
 		  {
+
 	    	uint16_t value = readRangeContinuousMillimeters(&_VL53L0X);
-	 //      	uint16_t value = readRangeSingleMillimeters(&_VL53L0X);
 			if(value<2000){
-				sprintf(buf, " %d mm     ", value);
-				ST7735_DrawString(65, 7*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
-				uint x= ((160*value)/(NUMSCALE*100));
-				ST7735_FillRectangle(0, 8*STR_H+1, x, 4, ST7735_YELLOW);
-				ST7735_FillRectangle(x+1, 8*STR_H+1, 160-1, 4, ST7735_BLACK);
+				sprintf(buf, "%3d mm  ", value);
+				ST7735_DrawString(65, 7*STR_H-6, buf, Font_11x18, ST7735_WHITE, ST7735_BLACK);
+				uint x= ((ST7735_HEIGHT*value)/NUMSCALE/100);
+				ST7735_FillRectangle(0, 8*STR_H+1, x, 4, ST7735_GREEN);
+				ST7735_FillRectangle(x+1, 8*STR_H+1, ST7735_HEIGHT-1, 4, ST7735_BLACK);
+				outRange=false;
 			}
 			else {
+				if(!outRange){
+				ST7735_DrawString(65, 7*STR_H-6, "       ", Font_11x18, ST7735_WHITE, ST7735_BLACK);
 				sprintf(buf, "out of range");
 				ST7735_DrawString(65, 7*STR_H, buf, Font_7x10, ST7735_RED, ST7735_BLACK);
-				ST7735_FillRectangle(0, 8*STR_H+1, 160, 4, ST7735_YELLOW);
+				ST7735_FillRectangle(0, 8*STR_H+1, ST7735_HEIGHT, 4, ST7735_YELLOW);
+				outRange=true;
+				}
 			}
 
 			 if (timeoutOccurred(&_VL53L0X)) {
 				sprintf(buf,"TIMEOUT, err 0x%0x", _VL53L0X.last_status); // последня ошибка i2c
 				ST7735_DrawString(0, 6*STR_H, buf, Font_7x10, ST7735_RED, ST7735_BLACK);
+				ST7735_FillRectangle(0, 8*STR_H+1, ST7735_HEIGHT, 4, ST7735_RED);
 			 }
 
 			 if (HAL_GPIO_ReadPin(ENC_BTN_GPIO_Port, ENC_BTN_Pin) == 1) { stopContinuous(&_VL53L0X); return;}// выход по кнопке энкодера
