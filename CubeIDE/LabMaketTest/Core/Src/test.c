@@ -133,6 +133,8 @@ void test_TFT(void)
  ST7735_FillTriangle(0, 0, ST7735_GetWidth() / 2, ST7735_GetHeight(), ST7735_GetWidth(), 0, ST7735_RED);
  HAL_Delay(1000);
 
+
+
  // Проверка регулирования яркости дисплея с помощью аппаратного таймера IM 2 chanal 2
  ST7735_FillScreen(ST7735_WHITE);
  ST7735_DrawString(8, 50, "BACKLIGHT", Font_16x26, ST7735_BLACK, ST7735_WHITE);
@@ -141,10 +143,7 @@ void test_TFT(void)
  for (int i=0;i<100;i++){ST7735_Backlight(i);HAL_Delay(20); }
  for (int i=0;i<100;i++){ST7735_Backlight(100-i);HAL_Delay(50); }
  ST7735_Backlight(100);
-// ST7735_FillScreen(ST7735_BLACK);
-// ST7735_DrawImage(16, 0, 128, 128, (uint16_t*) test_img_128x128);
-// ST7735_DrawImage(0, 0, 160, 128, (const unsigned char*) gImage_icon03);
-// HAL_Delay(2000);
+
 }
 
 // Тест аналоговых датчиков
@@ -499,7 +498,8 @@ void test_VL53L0x(void){
 	     for(int i=0;i<=NUMSCALE;i++)   { ST7735_DrawFastVLine(i*POINTSCALE,8*STR_H+6,4,ST7735_WHITE);  }
 	     ST7735_DrawFastVLine(ST7735_HEIGHT-1,8*STR_H+6,4,ST7735_WHITE);
 
-        bool outRange=false;
+        bool outRange=false; // Что быы не было мерцания надписи out of range
+
 	    while (1)
 		  {
 
@@ -514,6 +514,7 @@ void test_VL53L0x(void){
 			}
 			else {
 				if(!outRange){
+				beep(50);
 				ST7735_DrawString(65, 7*STR_H-6, "       ", Font_11x18, ST7735_WHITE, ST7735_BLACK);
 				sprintf(buf, "out of range");
 				ST7735_DrawString(65, 7*STR_H, buf, Font_7x10, ST7735_RED, ST7735_BLACK);
