@@ -431,13 +431,20 @@ void scan_i2c(){
 // - higher speed at the cost of lower accuracy OR
 // - higher accuracy at the cost of lower speed
 // https://community.st.com/s/question/0D50X00009XkWI2SAN/ported-vl53l0x-pololu-code-to-stm32-always-times-out-cant-find-error
+
 //#define HIGH_SPEED
 #define HIGH_ACCURACY
 //#define LONG_RANGE
 
+// Параметры шкалы
+#define NUMSCALE     8              // Число делений шкалы (должно 160 делится без остатка)
+#define POINTSCALE   160/NUMSCALE   // Размер одного деления шкалы в точках
+
+static VL53L0X _VL53L0X;
+static  bool initVL53L0X=false;     // Инициализация чипа VL53L0X 1 раз!
 
 void test_VL53L0x(void){
-	VL53L0X _VL53L0X;
+//	 VL53L0X _VL53L0X;
 	 ST7735_FillScreen(ST7735_BLACK);
 	 ST7735_FillRectangle(0, 0, 160-1, 12, ST7735_BLUE);
 	 ST7735_DrawString(0, 1, "Test VL53L01 I2C1", Font_7x10, ST7735_YELLOW, ST7735_BLUE);
@@ -445,6 +452,11 @@ void test_VL53L0x(void){
      ST7735_DrawString(0, 118, "Exit - press encoder", Font_7x10, ST7735_YELLOW, ST7735_BLACK);
 
 	  setup_VL53L0X(&_VL53L0X); //Set up the VL53L0X struct with default address and timeout status.
+
+	  setTimeout(&_VL53L0X,500);
+
+	 if(!initVL53L0X){ // VL53L0X можно инициализировать 1 раз
+	 initVL53L0X=true;
 	  if(!init(&_VL53L0X,true)) //attempt to initialise it with the necessary settings for normal operation. Returns 0 if fail, 1 if success.
 	  {
 		  sprintf(buf,"Failed to init");
@@ -454,12 +466,11 @@ void test_VL53L0x(void){
 	  {
 		  sprintf(buf,"Successfully init");
 		  ST7735_DrawString(0, 1*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
-
 	  }
-   	    setTimeout(&_VL53L0X,500);
-	    setVcselPulsePeriod(&_VL53L0X,VcselPeriodPreRange, 18);    //  VcselPeriodPreRange:  12 to 18 (initialized default: 14)
-	    setVcselPulsePeriod(&_VL53L0X,VcselPeriodFinalRange, 14);  //  VcselPeriodFinalRange: 8 to 14 (initialized default: 10)
-	    startContinuous(&_VL53L0X,0);
+	 }
+//   	setTimeout(&_VL53L0X,500);
+//	    setVcselPulsePeriod(&_VL53L0X,VcselPeriodPreRange, 18);    //  VcselPeriodPreRange:  12 to 18 (initialized default: 14)
+//	    setVcselPulsePeriod(&_VL53L0X,VcselPeriodFinalRange, 14);  //  VcselPeriodFinalRange: 8 to 14 (initialized default: 10)
 
 	  #if defined LONG_RANGE
 	    // lower the return signal rate limit (default is 0.25 MCPS)
@@ -488,25 +499,25 @@ void test_VL53L0x(void){
 	    // Базовая шкала
 	     ST7735_DrawString(0, 7*STR_H, "Distance: ", Font_7x10, ST7735_WHITE, ST7735_BLACK);
 	     ST7735_DrawFastHLine(0,8*STR_H+6,320,ST7735_WHITE);
-	     for(int i=0;i<=5;i++)   { ST7735_DrawFastVLine(i*32,8*STR_H+6,4,ST7735_WHITE);  }
-	     ST7735_DrawFastVLine(159,8*STR_H+6,4,ST7735_WHITE);
+	     for(int i=0;i<=NUMSCALE;i++)   { ST7735_DrawFastVLine(i*POINTSCALE,8*STR_H+6,4,ST7735_WHITE);  }
+	     ST7735_DrawFastVLine(160-1,8*STR_H+6,4,ST7735_WHITE);
 
 	    while (1)
 		  {
 	    	uint16_t value = readRangeContinuousMillimeters(&_VL53L0X);
+	 //      	uint16_t value = readRangeSingleMillimeters(&_VL53L0X);
 			if(value<2000){
 				sprintf(buf, " %d mm     ", value);
 				ST7735_DrawString(65, 7*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
-				uint x= (160*value/500);
+				uint x= ((160*value)/(NUMSCALE*100));
 				ST7735_FillRectangle(0, 8*STR_H+1, x, 4, ST7735_YELLOW);
-				ST7735_FillRectangle(x+1, 8*STR_H+1, 159, 4, ST7735_BLACK);
+				ST7735_FillRectangle(x+1, 8*STR_H+1, 160-1, 4, ST7735_BLACK);
 			}
 			else {
 				sprintf(buf, "out of range");
 				ST7735_DrawString(65, 7*STR_H, buf, Font_7x10, ST7735_RED, ST7735_BLACK);
 				ST7735_FillRectangle(0, 8*STR_H+1, 160, 4, ST7735_YELLOW);
 			}
-
 
 			 if (timeoutOccurred(&_VL53L0X)) {
 				sprintf(buf,"TIMEOUT, err 0x%0x", _VL53L0X.last_status); // последня ошибка i2c
@@ -1003,7 +1014,7 @@ char *HAL_Return[4]={"OK","ERROR","BUSY","TIMEOUT"};  // Расшифровка 
 void test_at24c128(void){
 
 	ST7735_FillScreen(ST7735_BLACK);
-	ST7735_FillRectangle(0, 0, 160-1, 12, ST7735_BLUE);
+	ST7735_FillRectangle(0, 0, 160-1, 11, ST7735_BLUE);
 	ST7735_DrawString(0, 1, "Test AT24Cxxx I2C1", Font_7x10, ST7735_YELLOW, ST7735_BLUE);
 
     ST7735_DrawString(0, 118, "Exit - press encoder", Font_7x10, ST7735_YELLOW, ST7735_BLACK);
@@ -1011,40 +1022,39 @@ void test_at24c128(void){
 char testBuf[]="Test w/r at24cxx...";
 
 sprintf(buf,"I2C address: 0x%02x",_EEPROM_ADDRESS>>1); // Адрес памяти - убрать младший бит (типа операции)
-ST7735_DrawString(0, 1*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+ST7735_DrawString(0, 1*STR_H+1, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
-sprintf(buf,"is Connected: %s",(at24_isConnected()?"Ok":"Err"));
-ST7735_DrawString(0, 2*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+sprintf(buf,"Is connected: %s",(at24_isConnected()?"Ok":"Err"));
+ST7735_DrawString(0, 2*STR_H+1, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
-ST7735_DrawString(0, 3*STR_H,"Erase chip . . ." , Font_7x10, ST7735_WHITE, ST7735_BLACK);
+ST7735_DrawString(0, 3*STR_H+2,"Erase chip . . ." , Font_7x10, ST7735_WHITE, ST7735_BLACK);
 sprintf(buf,"Erase chip: %s",(at24_eraseChip()?"Ok":"Err"));
-ST7735_DrawString(0, 3*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+ST7735_DrawString(0, 3*STR_H+1, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
 sprintf(buf,"Write on chip: %s",(at24_write(0, (uint8_t *)testBuf, sizeof(testBuf), 30)?"Ok":"Err"));
-ST7735_DrawString(0, 4*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+ST7735_DrawString(0, 4*STR_H+1, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
 sprintf(buf,"> %s",testBuf);
-ST7735_DrawString(0, 5*STR_H, buf, Font_7x10, ST7735_RED, ST7735_BLACK);
+ST7735_DrawString(0, 5*STR_H+1, buf, Font_7x10, ST7735_RED, ST7735_BLACK);
 
 memset(testBuf,0x00,sizeof(testBuf));
 sprintf(buf,"Read of chip: %s",(at24_read(0, (uint8_t *)testBuf, sizeof(testBuf), 10)?"Ok":"Err"));
-ST7735_DrawString(0, 6*STR_H, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+ST7735_DrawString(0, 6*STR_H+1, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
 
 sprintf(buf,"< %s",testBuf);
-ST7735_DrawString(0, 7*STR_H, buf, Font_7x10, ST7735_YELLOW, ST7735_BLACK);
-
+ST7735_DrawString(0, 7*STR_H+1, buf, Font_7x10, ST7735_YELLOW, ST7735_BLACK);
 
 // Тест на скорость записи
 sprintf(buf,"Test write/read flash");
-ST7735_DrawString(0, 9*STR_H-1, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
+ST7735_DrawString(0, 9*STR_H-2, buf, Font_7x10, ST7735_WHITE, ST7735_BLACK);
 
 uint8_t bufSector[64]={55};
 uint start=HAL_GetTick();
 for(int i=0;i<10;i++) at24_write(i*64, bufSector, sizeof(bufSector), 100);
 uint t=HAL_GetTick()-start;
 sprintf(buf,"Write 640 byte ms: %d",t);
-ST7735_DrawString(0, 10*STR_H-1, buf, Font_7x10, ST7735_GREEN, ST7735_BLACK);
+ST7735_DrawString(0, 10*STR_H-2, buf, Font_7x10, ST7735_GREEN, ST7735_BLACK);
 
 // Тест на скорость чтения
 start=HAL_GetTick();
