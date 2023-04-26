@@ -1,6 +1,6 @@
 Configuration	LabMaketTest
-STM32CubeMX 	6.3.0
-Date	01/14/2022
+STM32CubeMX 	6.5.0
+Date	04/26/2023
 MCU	STM32F103CBTx
 
 
@@ -136,7 +136,7 @@ SOFTWARE PROJECT
 
 Project Settings : 
 Project Name : LabMaketTest
-Project Folder : /home/pavel/STM32CubeIDE/workspace_1.3.0/DevBoardSTM32F103CBT/CubeIDE/LabMaketTest
+Project Folder : C:\Users\Computer\STM32CubeIDE\workspace_1.9.0\LabMaketTest
 Toolchain / IDE : STM32CubeIDE
 Firmware Package Name and Version : STM32Cube FW_F1 V1.8.4
 
