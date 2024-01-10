@@ -1,4 +1,12 @@
 Использование платы с Arduino IDE (maple mini)<br>
+pav2000 10/01/2024 <br>
+ВНИМАНИЕ!  При прошивке на Arduino IDE (версия 1.8.х) у меня выскочила ошибка Java Runtime Environment, после обновления на 8 версию java
+лечится либо откатом на 7 версию либо переходом на 32 битную 8 версию. Данная проблема описана в инете. <br>
+https://github.com/rogerclarkmelbourne/Arduino_STM32/issues/813  - я использовал вот это (последний пост) <br>
+https://github.com/rogerclarkmelbourne/Arduino_STM32/issues/834 <br>
+https://community.platformio.org/t/bluepill-f103c8-java-runtime-error/24761 <br>
+https://www.stm32duino.com/viewtopic.php?t=604 <br>
+Возможно надо перейти на среду версии 2.х <br>
 <br>
 Отладочную плату STM32 базе микроконтроллера STM32F103C8T6 можно программировать
 с помощью Arduino IDE. STM32 дает больше возможностей в плане производительности
